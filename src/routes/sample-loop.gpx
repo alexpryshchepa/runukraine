@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="runukraine-sample" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Sample Loop</name>
+    <trkseg>
+      <trkpt lat="50.4501" lon="30.5234"><ele>180</ele></trkpt>
+      <trkpt lat="50.4530" lon="30.5234"><ele>182</ele></trkpt>
+      <trkpt lat="50.4530" lon="30.5290"><ele>185</ele></trkpt>
+      <trkpt lat="50.4501" lon="30.5290"><ele>183</ele></trkpt>
+      <trkpt lat="50.4501" lon="30.5234"><ele>180</ele></trkpt>
+    </trkseg>
+  </trk>
+</gpx>
