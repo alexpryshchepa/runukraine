@@ -1,0 +1,30 @@
+import { describe, it, expect } from 'vitest';
+import { translate } from './i18n';
+
+describe('translate', () => {
+  it('returns the Ukrainian string for a simple key', () => {
+    expect(translate('uk', 'download')).toBe("Завантажити об'єднаний .tcx");
+  });
+
+  it('returns the English string for a simple key', () => {
+    expect(translate('en', 'download')).toBe('Download merged .tcx');
+  });
+
+  it('resolves dot-path keys for errors', () => {
+    expect(translate('en', 'errors.gpxTooFewPoints')).toBe(
+      'This route GPX must contain at least 2 points.',
+    );
+    expect(translate('uk', 'errors.gpxTooFewPoints')).toBe(
+      'Цей GPX-маршрут має містити щонайменше 2 точки.',
+    );
+  });
+
+  it('interpolates named params', () => {
+    expect(translate('en', 'loaded', { n: 42 })).toBe('Loaded 42 points.');
+    expect(translate('uk', 'loaded', { n: 42 })).toBe('Завантажено точок: 42.');
+  });
+
+  it('falls back to the key itself when missing in all languages', () => {
+    expect(translate('uk', 'does.not.exist')).toBe('does.not.exist');
+  });
+});

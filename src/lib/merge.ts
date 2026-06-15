@@ -1,21 +1,22 @@
 import type { GarminActivity, MergedActivity, MergedSample, Route } from '../types';
 import { interpolateAlongPath } from './geo';
+import { AppError } from './errors';
 
 export function mergeActivityWithRoute(
   activity: GarminActivity,
   route: Route,
 ): MergedActivity {
   if (activity.samples.length === 0) {
-    throw new Error('This activity has no samples to merge.');
+    throw new AppError('mergeNoSamples');
   }
   if (route.points.length < 2) {
-    throw new Error('The route must have at least 2 points.');
+    throw new AppError('mergeRouteTooFewPoints');
   }
   const first = activity.samples[0];
   const last = activity.samples[activity.samples.length - 1];
   const garminTotal = last.distance - first.distance;
   if (garminTotal <= 0) {
-    throw new Error('This activity has no usable distance to map onto the route.');
+    throw new AppError('mergeNoDistance');
   }
   const scale = route.length / garminTotal;
 

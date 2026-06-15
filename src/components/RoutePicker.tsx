@@ -1,4 +1,5 @@
 import type { Route } from '../types';
+import { useT } from '../i18n/languageContext';
 
 export function RoutePicker({
   routes,
@@ -9,12 +10,9 @@ export function RoutePicker({
   selected: Route | null;
   onSelect: (route: Route) => void;
 }) {
+  const t = useT();
   if (routes.length === 0) {
-    return (
-      <p>
-        No routes available yet. Add <code>.gpx</code> files to <code>src/routes/</code>.
-      </p>
-    );
+    return <p>{t('noRoutes')}</p>;
   }
   return (
     <ul className="route-picker">
@@ -25,7 +23,7 @@ export function RoutePicker({
             aria-pressed={selected?.name === r.name}
             onClick={() => onSelect(r)}
           >
-            {r.name} — {(r.length / 1000).toFixed(2)} km
+            {r.name} — {(r.length / 1000).toFixed(2)} {t('units.km')}
           </button>
         </li>
       ))}

@@ -1,4 +1,5 @@
 import type { MergedActivity, MergedSample } from '../types';
+import { AppError } from './errors';
 
 function fmt(n: number, digits = 6): string {
   return n.toFixed(digits);
@@ -31,7 +32,7 @@ function trackpointXml(s: MergedSample): string {
 
 export function serializeTcx(activity: MergedActivity): string {
   const { samples } = activity;
-  if (samples.length === 0) throw new Error('Cannot export an empty activity.');
+  if (samples.length === 0) throw new AppError('exportEmpty');
   const sport = activity.sport ?? 'Running';
   const startTime = samples[0].time.toISOString();
   const totalSeconds =

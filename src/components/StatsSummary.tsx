@@ -1,4 +1,5 @@
 import type { ActivityStats } from '../types';
+import { useT } from '../i18n/languageContext';
 
 function formatDuration(seconds: number): string {
   const s = Math.round(seconds);
@@ -10,32 +11,41 @@ function formatDuration(seconds: number): string {
 }
 
 export function StatsSummary({ stats }: { stats: ActivityStats }) {
+  const t = useT();
   return (
     <dl className="stats">
       <div>
-        <dt>Distance</dt>
-        <dd>{(stats.distanceMeters / 1000).toFixed(2)} km</dd>
+        <dt>{t('distance')}</dt>
+        <dd>
+          {(stats.distanceMeters / 1000).toFixed(2)} {t('units.km')}
+        </dd>
       </div>
       <div>
-        <dt>Time</dt>
+        <dt>{t('time')}</dt>
         <dd>{formatDuration(stats.elapsedSeconds)}</dd>
       </div>
       {stats.avgHr !== undefined && (
         <div>
-          <dt>Avg HR</dt>
-          <dd>{stats.avgHr} bpm</dd>
+          <dt>{t('avgHr')}</dt>
+          <dd>
+            {stats.avgHr} {t('units.bpm')}
+          </dd>
         </div>
       )}
       {stats.maxHr !== undefined && (
         <div>
-          <dt>Max HR</dt>
-          <dd>{stats.maxHr} bpm</dd>
+          <dt>{t('maxHr')}</dt>
+          <dd>
+            {stats.maxHr} {t('units.bpm')}
+          </dd>
         </div>
       )}
       {stats.avgCadence !== undefined && (
         <div>
-          <dt>Avg cadence</dt>
-          <dd>{stats.avgCadence} spm</dd>
+          <dt>{t('avgCadence')}</dt>
+          <dd>
+            {stats.avgCadence} {t('units.spm')}
+          </dd>
         </div>
       )}
     </dl>

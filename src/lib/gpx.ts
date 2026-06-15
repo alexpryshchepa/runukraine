@@ -1,9 +1,10 @@
 import type { RoutePoint } from '../types';
+import { AppError } from './errors';
 
 export function parseGpx(xml: string): RoutePoint[] {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length > 0) {
-    throw new Error('Could not read this file as GPX (invalid XML).');
+    throw new AppError('gpxInvalidXml');
   }
   let nodes = Array.from(doc.getElementsByTagNameNS('*', 'trkpt'));
   if (nodes.length === 0) nodes = Array.from(doc.getElementsByTagNameNS('*', 'rtept'));
@@ -21,7 +22,7 @@ export function parseGpx(xml: string): RoutePoint[] {
   }
 
   if (points.length < 2) {
-    throw new Error('This route GPX must contain at least 2 points.');
+    throw new AppError('gpxTooFewPoints');
   }
   return points;
 }

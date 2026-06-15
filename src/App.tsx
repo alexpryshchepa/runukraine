@@ -12,9 +12,13 @@ import { ActivityEditor } from './components/ActivityEditor';
 import { RoutePicker } from './components/RoutePicker';
 import { MapPreview } from './components/MapPreview';
 import { StatsSummary } from './components/StatsSummary';
+import { useT } from './i18n/languageContext';
+import { LanguageToggle } from './i18n/LanguageToggle';
+import { localizeError } from './i18n/localizeError';
 import type { GarminActivity, MergedActivity, Route } from './types';
 
 export default function App() {
+  const t = useT();
   const routes = useMemo(() => loadBundledRoutes(), []);
   const [activity, setActivity] = useState<GarminActivity | null>(null);
   const [name, setName] = useState<string>('activity');
@@ -31,7 +35,7 @@ export default function App() {
       setError(null);
     } catch (e) {
       setActivity(null);
-      setError((e as Error).message);
+      setError(localizeError(e, t));
     }
   }
 
@@ -50,9 +54,9 @@ export default function App() {
     try {
       return { merged: mergeActivityWithRoute(editedActivity, route), mergeError: null };
     } catch (e) {
-      return { merged: null, mergeError: (e as Error).message };
+      return { merged: null, mergeError: localizeError(e, t) };
     }
-  }, [editedActivity, route]);
+  }, [editedActivity, route, t]);
 
   function handleDownload() {
     if (!merged) return;
@@ -62,10 +66,11 @@ export default function App() {
 
   return (
     <main className="app">
-      <h1>RunUkraine — track merger</h1>
-      <p className="lede">
-        Paint your watch's telemetry onto an official event route when GPS was jammed.
-      </p>
+      <header className="app-header">
+        <h1>{t('title')}</h1>
+        <LanguageToggle />
+      </header>
+      <p className="lede">{t('lede')}</p>
 
       {(error || mergeError) && (
         <p className="error" role="alert">
@@ -74,15 +79,15 @@ export default function App() {
       )}
 
       <section>
-        <h2>1. Your activity file</h2>
-        <FileDrop onFile={handleFile} />
-        {activity && <p>Loaded {activity.samples.length} points.</p>}
+        <h2>{t('step1')}</h2>
+        <FileDrop onFile={handleFile} label={t('chooseFile')} />
+        {activity && <p>{t('loaded', { n: activity.samples.length })}</p>}
         <ExportFaq />
       </section>
 
       {activity && (
         <section>
-          <h2>2. Adjust start time &amp; name</h2>
+          <h2>{t('step2')}</h2>
           <ActivityEditor
             name={name}
             startInput={startInput}
@@ -94,25 +99,25 @@ export default function App() {
 
       {activity && (
         <section>
-          <h2>3. Pick the official route</h2>
+          <h2>{t('step3')}</h2>
           <RoutePicker routes={routes} selected={route} onSelect={setRoute} />
         </section>
       )}
 
       {merged && (
         <section>
-          <h2>4. Preview &amp; download</h2>
+          <h2>{t('step4')}</h2>
           <MapPreview merged={merged.samples} original={editedActivity?.samples} />
           <StatsSummary stats={computeStats(merged.samples)} />
           <button type="button" onClick={handleDownload}>
-            Download merged .tcx
+            {t('download')}
           </button>
           <p>
-            Then upload it at{' '}
+            {t('uploadPrefix')}
             <a href="https://www.strava.com/upload/select" target="_blank" rel="noreferrer">
               strava.com/upload
             </a>
-            .
+            {t('uploadSuffix')}
           </p>
         </section>
       )}

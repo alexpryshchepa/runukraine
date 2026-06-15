@@ -1,4 +1,5 @@
 import type { GarminActivity, GarminSample } from '../types';
+import { AppError } from './errors';
 
 function textNS(parent: Element, local: string): string | undefined {
   const el = parent.getElementsByTagNameNS('*', local)[0];
@@ -9,11 +10,11 @@ function textNS(parent: Element, local: string): string | undefined {
 export function parseTcx(xml: string): GarminActivity {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length > 0) {
-    throw new Error('Could not read this file as TCX (invalid XML).');
+    throw new AppError('tcxInvalidXml');
   }
   const trackpoints = Array.from(doc.getElementsByTagNameNS('*', 'Trackpoint'));
   if (trackpoints.length === 0) {
-    throw new Error('No trackpoints found in this TCX file.');
+    throw new AppError('tcxNoTrackpoints');
   }
 
   const activityEl = doc.getElementsByTagNameNS('*', 'Activity')[0];
@@ -59,7 +60,7 @@ export function parseTcx(xml: string): GarminActivity {
   }
 
   if (samples.length === 0) {
-    throw new Error('This TCX file has no distance data, so it cannot be merged.');
+    throw new AppError('tcxNoDistance');
   }
   return { samples, sport };
 }

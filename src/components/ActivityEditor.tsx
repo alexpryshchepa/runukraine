@@ -1,3 +1,5 @@
+import { useT } from '../i18n/languageContext';
+
 export function ActivityEditor({
   name,
   startInput,
@@ -9,19 +11,20 @@ export function ActivityEditor({
   onNameChange: (v: string) => void;
   onStartChange: (v: string) => void;
 }) {
+  const t = useT();
   return (
     <div className="activity-editor">
       <label>
-        Activity name
+        {t('activityName')}
         <input
           type="text"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="My activity"
+          placeholder={t('activityNamePlaceholder')}
         />
       </label>
       <label>
-        Start time
+        {t('startTime')}
         <input
           type="datetime-local"
           value={startInput}

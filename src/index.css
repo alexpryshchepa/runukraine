@@ -11,6 +11,33 @@ body {
   margin: 0 auto;
   padding: 24px;
 }
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lang-toggle {
+  display: inline-flex;
+  border: 1px solid #d0d0d4;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lang-toggle button {
+  padding: 4px 10px;
+  border: none;
+  background: #fafafa;
+  cursor: pointer;
+  color: #555;
+}
+.lang-toggle button + button {
+  border-left: 1px solid #d0d0d4;
+}
+.lang-toggle button[aria-pressed='true'] {
+  background: #0a84ff;
+  color: #fff;
+}
 .lede {
   color: #555;
 }
