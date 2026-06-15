@@ -27,6 +27,7 @@ type Messages = {
   maxHr: string;
   avgCadence: string;
   langLabel: string;
+  disclaimer: string;
   units: { km: string; bpm: string; spm: string };
   errors: Record<ErrorCode, string>;
 };
@@ -55,6 +56,8 @@ const en: Messages = {
   maxHr: 'Max HR',
   avgCadence: 'Avg cadence',
   langLabel: 'Language',
+  disclaimer:
+    'Independent, unofficial tool. Not affiliated with, endorsed by, or sponsored by RunUkraine or any race organizer. All trademarks are the property of their respective owners.',
   units: {
     km: 'km',
     bpm: 'bpm',
@@ -86,6 +89,8 @@ const uk: Messages = {
   maxHr: 'Макс. пульс',
   avgCadence: 'Сер. каденс',
   langLabel: 'Мова',
+  disclaimer:
+    "Незалежний, неофіційний інструмент. Не пов'язаний із RunUkraine чи будь-яким організатором забігів, не схвалений і не спонсорований ними. Усі торгові марки належать їхнім власникам.",
   units: {
     km: 'км',
     bpm: 'уд/хв',

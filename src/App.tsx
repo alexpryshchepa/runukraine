@@ -121,6 +121,10 @@ export default function App() {
           </p>
         </section>
       )}
+
+      <footer className="app-footer">
+        <p>{t('disclaimer')}</p>
+      </footer>
     </main>
   );
 }
