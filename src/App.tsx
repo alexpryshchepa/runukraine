@@ -1,122 +1,95 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useMemo, useState } from 'react';
+import { parseTcx } from './lib/tcx';
+import { loadBundledRoutes } from './lib/routes';
+import { mergeActivityWithRoute } from './lib/merge';
+import { computeStats } from './lib/stats';
+import { serializeTcx } from './lib/tcxWriter';
+import { downloadText } from './lib/download';
+import { FileDrop } from './components/FileDrop';
+import { RoutePicker } from './components/RoutePicker';
+import { MapPreview } from './components/MapPreview';
+import { StatsSummary } from './components/StatsSummary';
+import type { GarminActivity, MergedActivity, Route } from './types';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const routes = useMemo(() => loadBundledRoutes(), []);
+  const [activity, setActivity] = useState<GarminActivity | null>(null);
+  const [filename, setFilename] = useState<string>('activity');
+  const [route, setRoute] = useState<Route | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleFile(text: string, name: string) {
+    try {
+      setActivity(parseTcx(text));
+      setFilename(name.replace(/\.tcx$/i, ''));
+      setError(null);
+    } catch (e) {
+      setActivity(null);
+      setError((e as Error).message);
+    }
+  }
+
+  const { merged, mergeError } = useMemo<{
+    merged: MergedActivity | null;
+    mergeError: string | null;
+  }>(() => {
+    if (!activity || !route) return { merged: null, mergeError: null };
+    try {
+      return { merged: mergeActivityWithRoute(activity, route), mergeError: null };
+    } catch (e) {
+      return { merged: null, mergeError: (e as Error).message };
+    }
+  }, [activity, route]);
+
+  function handleDownload() {
+    if (!merged) return;
+    const safe = `${filename}-${route?.name ?? 'route'}.tcx`.replace(/\s+/g, '-');
+    downloadText(safe, serializeTcx(merged));
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
+    <main className="app">
+      <h1>RunUkraine — track merger</h1>
+      <p className="lede">
+        Paint your Garmin telemetry onto an official event route when GPS was jammed.
+      </p>
+
+      {(error || mergeError) && (
+        <p className="error" role="alert">
+          {error ?? mergeError}
+        </p>
+      )}
+
+      <section>
+        <h2>1. Your Garmin activity</h2>
+        <FileDrop onFile={handleFile} />
+        {activity && <p>Loaded {activity.samples.length} points.</p>}
+      </section>
+
+      {activity && (
+        <section>
+          <h2>2. Pick the official route</h2>
+          <RoutePicker routes={routes} selected={route} onSelect={setRoute} />
+        </section>
+      )}
+
+      {merged && (
+        <section>
+          <h2>3. Preview &amp; download</h2>
+          <MapPreview merged={merged.samples} original={activity?.samples} />
+          <StatsSummary stats={computeStats(merged.samples)} />
+          <button type="button" onClick={handleDownload}>
+            Download merged .tcx
+          </button>
           <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+            Then upload it at{' '}
+            <a href="https://www.strava.com/upload/select" target="_blank" rel="noreferrer">
+              strava.com/upload
+            </a>
+            .
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        </section>
+      )}
+    </main>
+  );
 }
-
-export default App
