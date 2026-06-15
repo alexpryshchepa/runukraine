@@ -1,7 +1,7 @@
 export function FileDrop({
   onFile,
   accept = '.tcx',
-  label = 'Choose your Garmin .tcx file',
+  label = 'Choose a .tcx file',
 }: {
   onFile: (text: string, filename: string) => void;
   accept?: string;

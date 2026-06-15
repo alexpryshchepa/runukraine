@@ -5,7 +5,10 @@ import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
 import { serializeTcx } from './lib/tcxWriter';
 import { downloadText } from './lib/download';
+import { shiftActivityStart, dateToLocalInput, localInputToDate } from './lib/editActivity';
 import { FileDrop } from './components/FileDrop';
+import { ExportFaq } from './components/ExportFaq';
+import { ActivityEditor } from './components/ActivityEditor';
 import { RoutePicker } from './components/RoutePicker';
 import { MapPreview } from './components/MapPreview';
 import { StatsSummary } from './components/StatsSummary';
@@ -14,14 +17,17 @@ import type { GarminActivity, MergedActivity, Route } from './types';
 export default function App() {
   const routes = useMemo(() => loadBundledRoutes(), []);
   const [activity, setActivity] = useState<GarminActivity | null>(null);
-  const [filename, setFilename] = useState<string>('activity');
+  const [name, setName] = useState<string>('activity');
+  const [startInput, setStartInput] = useState<string>('');
   const [route, setRoute] = useState<Route | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function handleFile(text: string, name: string) {
+  function handleFile(text: string, filename: string) {
     try {
-      setActivity(parseTcx(text));
-      setFilename(name.replace(/\.tcx$/i, ''));
+      const parsed = parseTcx(text);
+      setActivity(parsed);
+      setName(filename.replace(/\.tcx$/i, ''));
+      setStartInput(dateToLocalInput(parsed.samples[0].time));
       setError(null);
     } catch (e) {
       setActivity(null);
@@ -29,21 +35,28 @@ export default function App() {
     }
   }
 
+  const editedActivity = useMemo<GarminActivity | null>(() => {
+    if (!activity) return null;
+    const d = localInputToDate(startInput);
+    if (Number.isNaN(d.getTime())) return activity;
+    return shiftActivityStart(activity, d);
+  }, [activity, startInput]);
+
   const { merged, mergeError } = useMemo<{
     merged: MergedActivity | null;
     mergeError: string | null;
   }>(() => {
-    if (!activity || !route) return { merged: null, mergeError: null };
+    if (!editedActivity || !route) return { merged: null, mergeError: null };
     try {
-      return { merged: mergeActivityWithRoute(activity, route), mergeError: null };
+      return { merged: mergeActivityWithRoute(editedActivity, route), mergeError: null };
     } catch (e) {
       return { merged: null, mergeError: (e as Error).message };
     }
-  }, [activity, route]);
+  }, [editedActivity, route]);
 
   function handleDownload() {
     if (!merged) return;
-    const safe = `${filename}-${route?.name ?? 'route'}.tcx`.replace(/\s+/g, '-');
+    const safe = `${name || 'activity'}.tcx`.replace(/\s+/g, '-');
     downloadText(safe, serializeTcx(merged));
   }
 
@@ -51,7 +64,7 @@ export default function App() {
     <main className="app">
       <h1>RunUkraine — track merger</h1>
       <p className="lede">
-        Paint your Garmin telemetry onto an official event route when GPS was jammed.
+        Paint your watch's telemetry onto an official event route when GPS was jammed.
       </p>
 
       {(error || mergeError) && (
@@ -61,22 +74,35 @@ export default function App() {
       )}
 
       <section>
-        <h2>1. Your Garmin activity</h2>
+        <h2>1. Your activity file</h2>
         <FileDrop onFile={handleFile} />
         {activity && <p>Loaded {activity.samples.length} points.</p>}
+        <ExportFaq />
       </section>
 
       {activity && (
         <section>
-          <h2>2. Pick the official route</h2>
+          <h2>2. Adjust start time &amp; name</h2>
+          <ActivityEditor
+            name={name}
+            startInput={startInput}
+            onNameChange={setName}
+            onStartChange={setStartInput}
+          />
+        </section>
+      )}
+
+      {activity && (
+        <section>
+          <h2>3. Pick the official route</h2>
           <RoutePicker routes={routes} selected={route} onSelect={setRoute} />
         </section>
       )}
 
       {merged && (
         <section>
-          <h2>3. Preview &amp; download</h2>
-          <MapPreview merged={merged.samples} original={activity?.samples} />
+          <h2>4. Preview &amp; download</h2>
+          <MapPreview merged={merged.samples} original={editedActivity?.samples} />
           <StatsSummary stats={computeStats(merged.samples)} />
           <button type="button" onClick={handleDownload}>
             Download merged .tcx
