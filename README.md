@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# RunUkraine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Merge a Garmin `.tcx` activity (real telemetry, broken GPS) with an official event
+route `.gpx` (clean path, no telemetry), then download a merged `.tcx` to upload to
+Strava. 100% client-side — no backend, no accounts.
 
-Currently, two official plugins are available:
+## Why
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Where GPS is jammed, a Garmin watch still records time, distance, heart rate, cadence
+and altitude, but the GPS track is missing or garbage. This tool paints that telemetry
+onto the true course (scaled to fit the official distance) so the activity looks right.
 
-## React Compiler
+## How the merge works
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The watch records cumulative distance even without GPS. The route has a known length.
+For each telemetry sample at distance *d*, the app places it at the point *d* meters
+along the official route — scaling your distance stream so your start lands at the route
+start and your finish at the route finish. Your real time, heart rate, and cadence are
+preserved; only the GPS coordinates are rebuilt from the route.
 
-## Expanding the ESLint configuration
+## Develop
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev      # start the dev server
+npm test         # run the unit tests
+npm run build    # production build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Add official routes
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Drop event `.gpx` files into `src/routes/` and rebuild. They appear automatically in the
+route picker; the display name comes from the filename (e.g. `kyiv-half-marathon.gpx` →
+"Kyiv Half Marathon"). The bundled `sample-loop.gpx` is just for testing — replace or
+remove it.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Use
+
+1. Export your activity from Garmin Connect as **TCX** and upload it.
+2. Pick the official route.
+3. Preview the merged track, download the `.tcx`, and upload it at
+   [strava.com/upload](https://www.strava.com/upload/select).
