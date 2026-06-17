@@ -27,4 +27,9 @@ describe('translate', () => {
   it('falls back to the key itself when missing in all languages', () => {
     expect(translate('uk', 'does.not.exist')).toBe('does.not.exist');
   });
+
+  it('returns the future-start error in both languages', () => {
+    expect(translate('en', 'futureStartError')).toBe("Start time can't be in the future.");
+    expect(translate('uk', 'futureStartError')).toBe('Час початку не може бути в майбутньому.');
+  });
 });
