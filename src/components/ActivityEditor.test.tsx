@@ -10,6 +10,8 @@ describe('ActivityEditor', () => {
       <ActivityEditor
         name="My Run"
         startInput="2026-06-01T08:00"
+        startInvalid={false}
+        startError=""
         onNameChange={onNameChange}
         onStartChange={onStartChange}
       />,
