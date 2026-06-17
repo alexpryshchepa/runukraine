@@ -6,7 +6,7 @@ import { LanguageToggle } from './LanguageToggle';
 
 function Probe() {
   const t = useT();
-  return <p>{t('title')}</p>;
+  return <p>{t('heroTitle')}</p>;
 }
 
 beforeEach(() => {
@@ -17,7 +17,7 @@ beforeEach(() => {
 describe('useT without a provider', () => {
   it('falls back to English', () => {
     render(<Probe />);
-    expect(screen.getByText(/track merger/)).toBeInTheDocument();
+    expect(screen.getByText(/Rescue the run/)).toBeInTheDocument();
   });
 });
 
@@ -28,7 +28,7 @@ describe('LanguageProvider', () => {
         <Probe />
       </LanguageProvider>,
     );
-    expect(screen.getByText(/об'єднувач/)).toBeInTheDocument();
+    expect(screen.getByText(/не зміг записати/)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('uk');
   });
 
@@ -39,7 +39,7 @@ describe('LanguageProvider', () => {
         <Probe />
       </LanguageProvider>,
     );
-    expect(screen.getByText(/track merger/)).toBeInTheDocument();
+    expect(screen.getByText(/Rescue the run/)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe('en');
   });
 });
@@ -53,11 +53,11 @@ describe('LanguageToggle', () => {
       </LanguageProvider>,
     );
     // starts Ukrainian
-    expect(screen.getByText(/об'єднувач/)).toBeInTheDocument();
+    expect(screen.getByText(/не зміг записати/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /EN/i }));
 
-    expect(screen.getByText(/track merger/)).toBeInTheDocument();
+    expect(screen.getByText(/Rescue the run/)).toBeInTheDocument();
     expect(localStorage.getItem(LANG_STORAGE_KEY)).toBe('en');
     expect(document.documentElement.lang).toBe('en');
   });

@@ -51,9 +51,9 @@ type Messages = {
 
 /** Simple, nested string tables. `errors.*` are resolved by error code. */
 const en: Messages = {
-  htmlTitle: 'Replot — track merger',
-  title: 'Replot — track merger',
-  tagline: 'Track merger',
+  htmlTitle: 'Replot',
+  title: 'Replot',
+  tagline: 'Put your run back on route',
   heroTitle: "Rescue the run GPS couldn't record.",
   lede: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your run finally looks the way it felt.',
   chooseFile: 'Choose a .tcx file',
@@ -102,9 +102,9 @@ const en: Messages = {
 };
 
 const uk: Messages = {
-  htmlTitle: "Replot — об'єднувач треків",
-  title: "Replot — об'єднувач треків",
-  tagline: "Об'єднувач треків",
+  htmlTitle: 'Replot',
+  title: 'Replot',
+  tagline: 'Поверніть забіг на маршрут',
   heroTitle: 'Поверніть забіг, який не зміг записати GPS.',
   lede: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут забігу, щоб результат нарешті виглядав так, як відчувався.',
   chooseFile: 'Оберіть файл .tcx',
