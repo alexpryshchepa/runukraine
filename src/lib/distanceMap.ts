@@ -65,6 +65,7 @@ export function buildDistanceMap(
   }
 
   function mapDistance(d: number, timeMs: number): number {
+    if (knots.length < 2) return clamp(knots[0]?.arcLength ?? 0);
     const k0 = knots[0];
     const kN = knots[knots.length - 1];
     if (d <= k0.recordedDistance) {

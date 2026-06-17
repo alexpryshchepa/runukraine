@@ -51,6 +51,32 @@ describe('buildDistanceMap', () => {
     expect(map.fallbackUsed).toBe(false);
     // recorded 5000 sample should land near arc 5000, NOT ~1855 (global scale of 27000→10018)
     expect(map.mapDistance(5000, cleaned[5].time.getTime())).toBeGreaterThan(4000);
+    expect(map.mapDistance(5000, cleaned[5].time.getTime())).toBeLessThan(6000);
+  });
+
+  it('interpolates a flagged span by time, not by corrupted recorded distance', () => {
+    const route = eastRoute(0.09); // ~10018 m, plenty long
+    // three anchors (>= MIN_ANCHORS) so we are NOT in the fallback path
+    const anchors = [
+      { sampleIndex: 0, recordedDistance: 0, routeArcLength: 0 },
+      { sampleIndex: 2, recordedDistance: 1000, routeArcLength: 1000 },
+      { sampleIndex: 4, recordedDistance: 2000, routeArcLength: 2000 },
+    ];
+    const t = (sec: number) => new Date(2026, 0, 1, 0, 0, sec);
+    const samples = [
+      { time: t(0), distance: 0 },
+      { time: t(50), distance: 900 }, // recorded distance spiked near the span end
+      { time: t(100), distance: 1000 },
+      { time: t(150), distance: 1500 },
+      { time: t(200), distance: 2000 },
+    ] as GarminSample[];
+    const flagged = [false, true, false, false, false]; // implausible step into index 1
+    const map = buildDistanceMap(samples, anchors, flagged, route);
+    expect(map.fallbackUsed).toBe(false);
+    // distance fraction would give ~900; time fraction gives ~500
+    const arc = map.mapDistance(900, t(50).getTime());
+    expect(arc).toBeGreaterThan(400);
+    expect(arc).toBeLessThan(600);
   });
 
   it('ends short for a partial run (stops where the runner stopped)', () => {
