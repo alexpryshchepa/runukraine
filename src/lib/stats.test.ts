@@ -16,6 +16,7 @@ describe('computeStats', () => {
     expect(s.avgHr).toBe(150);
     expect(s.maxHr).toBe(170);
     expect(s.avgCadence).toBe(86);
+    expect(s.avgPaceSecondsPerKm).toBe(300);
   });
   it('omits hr and cadence when absent', () => {
     const s = computeStats([
@@ -30,5 +31,6 @@ describe('computeStats', () => {
     const s = computeStats([]);
     expect(s.distanceMeters).toBe(0);
     expect(s.elapsedSeconds).toBe(0);
+    expect(s.avgPaceSecondsPerKm).toBeUndefined();
   });
 });

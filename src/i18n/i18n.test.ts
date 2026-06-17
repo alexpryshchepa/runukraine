@@ -20,8 +20,8 @@ describe('translate', () => {
   });
 
   it('interpolates named params', () => {
-    expect(translate('en', 'loaded', { n: 42 })).toBe('Loaded 42 points.');
-    expect(translate('uk', 'loaded', { n: 42 })).toBe('Завантажено точок: 42.');
+    expect(translate('en', 'loaded', { n: 42 })).toBe('42 points loaded');
+    expect(translate('uk', 'loaded', { n: 42 })).toBe('Завантажено точок: 42');
   });
 
   it('falls back to the key itself when missing in all languages', () => {

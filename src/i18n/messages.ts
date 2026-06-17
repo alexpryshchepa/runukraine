@@ -7,13 +7,22 @@ export const LANGS: Lang[] = ['uk', 'en'];
 type Messages = {
   htmlTitle: string;
   title: string;
+  tagline: string;
+  heroTitle: string;
   lede: string;
   chooseFile: string;
+  dropTitle: string;
+  dropHint: string;
+  privacy: string;
   loaded: string;
+  replace: string;
   step1: string;
   step2: string;
   step3: string;
   step4: string;
+  mapRoute: string;
+  legendMerged: string;
+  legendOriginal: string;
   download: string;
   uploadPrefix: string;
   uploadSuffix: string;
@@ -23,12 +32,13 @@ type Messages = {
   noRoutes: string;
   distance: string;
   time: string;
+  pace: string;
   avgHr: string;
   maxHr: string;
   avgCadence: string;
   langLabel: string;
   disclaimer: string;
-  units: { km: string; bpm: string; spm: string };
+  units: { km: string; bpm: string; spm: string; minPerKm: string };
   errors: Record<ErrorCode, string>;
 };
 
@@ -36,22 +46,32 @@ type Messages = {
 const en: Messages = {
   htmlTitle: 'RunUkraine — track merger',
   title: 'RunUkraine — track merger',
-  lede: "Paint your watch's telemetry onto an official event route when GPS was jammed.",
+  tagline: 'Track merger',
+  heroTitle: "Rescue the run GPS couldn't record.",
+  lede: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. RunUkraine paints that telemetry onto the real event route, so your run finally looks the way it felt.',
   chooseFile: 'Choose a .tcx file',
-  loaded: 'Loaded {n} points.',
-  step1: '1. Your activity file',
-  step2: '2. Adjust start time & name',
-  step3: '3. Pick the official route',
-  step4: '4. Preview & download',
+  dropTitle: 'Drop your .tcx file here',
+  dropHint: 'or click to browse — nothing leaves your device',
+  privacy: '100% in your browser. Your file is never uploaded anywhere.',
+  loaded: '{n} points loaded',
+  replace: 'Replace',
+  step1: 'Add your activity file',
+  step2: 'Name it and set the start',
+  step3: 'Choose the official route',
+  step4: 'Preview and download',
+  mapRoute: 'Official route',
+  legendMerged: 'Merged route',
+  legendOriginal: 'Original GPS (jammed)',
   download: 'Download merged .tcx',
-  uploadPrefix: 'Then upload it at ',
-  uploadSuffix: '.',
+  uploadPrefix: 'Then upload it to ',
+  uploadSuffix: " — and you're done.",
   activityName: 'Activity name',
   activityNamePlaceholder: 'My activity',
   startTime: 'Start time',
   noRoutes: 'No routes available yet. Add .gpx files to src/routes/.',
   distance: 'Distance',
   time: 'Time',
+  pace: 'Pace',
   avgHr: 'Avg HR',
   maxHr: 'Max HR',
   avgCadence: 'Avg cadence',
@@ -62,6 +82,7 @@ const en: Messages = {
     km: 'km',
     bpm: 'bpm',
     spm: 'spm',
+    minPerKm: '/km',
   },
   errors: ERROR_MESSAGES_EN,
 };
@@ -69,22 +90,32 @@ const en: Messages = {
 const uk: Messages = {
   htmlTitle: "RunUkraine — об'єднувач треків",
   title: "RunUkraine — об'єднувач треків",
-  lede: 'Накладіть телеметрію годинника на офіційний маршрут забігу, коли GPS глушили.',
+  tagline: "Об'єднувач треків",
+  heroTitle: 'Поверніть забіг, який не зміг записати GPS.',
+  lede: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. RunUkraine накладає цю телеметрію на справжній маршрут забігу, щоб результат нарешті виглядав так, як відчувався.',
   chooseFile: 'Оберіть файл .tcx',
-  loaded: 'Завантажено точок: {n}.',
-  step1: '1. Файл вашого тренування',
-  step2: '2. Скоригуйте час старту та назву',
-  step3: '3. Оберіть офіційний маршрут',
-  step4: '4. Перегляд і завантаження',
+  dropTitle: 'Перетягніть файл .tcx сюди',
+  dropHint: 'або натисніть, щоб обрати — нічого не залишає ваш пристрій',
+  privacy: '100% у вашому браузері. Файл нікуди не завантажується.',
+  loaded: 'Завантажено точок: {n}',
+  replace: 'Замінити',
+  step1: 'Додайте файл тренування',
+  step2: 'Назва та час старту',
+  step3: 'Оберіть офіційний маршрут',
+  step4: 'Перегляд і завантаження',
+  mapRoute: 'Офіційний маршрут',
+  legendMerged: "Об'єднаний маршрут",
+  legendOriginal: 'Початковий GPS (заглушений)',
   download: "Завантажити об'єднаний .tcx",
   uploadPrefix: 'Потім завантажте його на ',
-  uploadSuffix: '.',
+  uploadSuffix: ' — і готово.',
   activityName: 'Назва тренування',
   activityNamePlaceholder: 'Моє тренування',
   startTime: 'Час старту',
   noRoutes: 'Поки що немає маршрутів. Додайте файли .gpx до src/routes/.',
   distance: 'Дистанція',
   time: 'Час',
+  pace: 'Темп',
   avgHr: 'Сер. пульс',
   maxHr: 'Макс. пульс',
   avgCadence: 'Сер. каденс',
@@ -95,6 +126,7 @@ const uk: Messages = {
     km: 'км',
     bpm: 'уд/хв',
     spm: 'кр/хв',
+    minPerKm: '/км',
   },
   errors: {
     tcxInvalidXml: 'Не вдалося прочитати файл як TCX (некоректний XML).',

@@ -10,6 +10,13 @@ function formatDuration(seconds: number): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
 }
 
+function formatPace(secondsPerKm: number): string {
+  const total = Math.round(secondsPerKm);
+  const m = Math.floor(total / 60);
+  const sec = total % 60;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
 export function StatsSummary({ stats }: { stats: ActivityStats }) {
   const t = useT();
   return (
@@ -17,18 +24,29 @@ export function StatsSummary({ stats }: { stats: ActivityStats }) {
       <div>
         <dt>{t('distance')}</dt>
         <dd>
-          {(stats.distanceMeters / 1000).toFixed(2)} {t('units.km')}
+          {(stats.distanceMeters / 1000).toFixed(2)}
+          <span className="unit">{t('units.km')}</span>
         </dd>
       </div>
       <div>
         <dt>{t('time')}</dt>
         <dd>{formatDuration(stats.elapsedSeconds)}</dd>
       </div>
+      {stats.avgPaceSecondsPerKm !== undefined && (
+        <div>
+          <dt>{t('pace')}</dt>
+          <dd>
+            {formatPace(stats.avgPaceSecondsPerKm)}
+            <span className="unit">{t('units.minPerKm')}</span>
+          </dd>
+        </div>
+      )}
       {stats.avgHr !== undefined && (
         <div>
           <dt>{t('avgHr')}</dt>
           <dd>
-            {stats.avgHr} {t('units.bpm')}
+            {stats.avgHr}
+            <span className="unit">{t('units.bpm')}</span>
           </dd>
         </div>
       )}
@@ -36,7 +54,8 @@ export function StatsSummary({ stats }: { stats: ActivityStats }) {
         <div>
           <dt>{t('maxHr')}</dt>
           <dd>
-            {stats.maxHr} {t('units.bpm')}
+            {stats.maxHr}
+            <span className="unit">{t('units.bpm')}</span>
           </dd>
         </div>
       )}
@@ -44,7 +63,8 @@ export function StatsSummary({ stats }: { stats: ActivityStats }) {
         <div>
           <dt>{t('avgCadence')}</dt>
           <dd>
-            {stats.avgCadence} {t('units.spm')}
+            {stats.avgCadence}
+            <span className="unit">{t('units.spm')}</span>
           </dd>
         </div>
       )}
