@@ -45,6 +45,23 @@ describe('resampleAtVertices', () => {
     expect(out).toHaveLength(2);
   });
 
+  it('omits one-sided telemetry and prefers the vertex elevation', () => {
+    const route = squareRoute();
+    route.points[1].ele = 42; // give the first interior vertex an elevation
+    const start: ArcSample = {
+      time: new Date(2026, 0, 1, 0, 0, 0), distance: 0, arc: 0, lat: 0, lon: 0, hr: 150,
+    };
+    const end: ArcSample = {
+      time: new Date(2026, 0, 1, 0, 0, 100), distance: route.length, arc: route.length,
+      lat: 0.01, lon: 0, cadence: 80,
+    };
+    const out = resampleAtVertices([start, end], route);
+    const inserted = out[1]; // route.points[1]
+    expect(inserted.hr).toBeUndefined(); // hr only on start → omitted
+    expect(inserted.cadence).toBeUndefined(); // cadence only on end → omitted
+    expect(inserted.altitude).toBe(42); // prefers the vertex ele
+  });
+
   it('does not exceed the trackpoint ceiling', () => {
     const points: RoutePoint[] = [];
     for (let i = 0; i <= 30000; i++) points.push({ lat: 0, lon: i * 0.00001 });

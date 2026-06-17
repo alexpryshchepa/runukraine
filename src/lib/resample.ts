@@ -29,7 +29,7 @@ export function resampleAtVertices(samples: ArcSample[], route: Route): MergedSa
       const arc = route.cumulative[v];
       if (arc <= a.arc || arc >= b.arc) continue;
       seen++;
-      if (seen % stride !== 0) continue;
+      if (stride === Number.POSITIVE_INFINITY || seen % stride !== 0) continue;
       const f = (arc - a.arc) / (b.arc - a.arc);
       out.push(interpolatedVertex(a, b, route, v, arc, f));
     }
@@ -63,12 +63,12 @@ function interpolatedVertex(
     lat: p.lat,
     lon: p.lon,
   };
-  out.altitude = p.ele ?? interpOptional(a.altitude, b.altitude, f);
-  out.hr = interpOptional(a.hr, b.hr, f);
-  out.cadence = interpOptional(a.cadence, b.cadence, f);
-  if (out.altitude === undefined) delete out.altitude;
-  if (out.hr === undefined) delete out.hr;
-  if (out.cadence === undefined) delete out.cadence;
+  const altitude = p.ele ?? interpOptional(a.altitude, b.altitude, f);
+  if (altitude !== undefined) out.altitude = altitude;
+  const hr = interpOptional(a.hr, b.hr, f);
+  if (hr !== undefined) out.hr = hr;
+  const cadence = interpOptional(a.cadence, b.cadence, f);
+  if (cadence !== undefined) out.cadence = cadence;
   return out;
 }
 
