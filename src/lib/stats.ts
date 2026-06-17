@@ -24,5 +24,7 @@ export function computeStats(samples: GarminSample[]): ActivityStats {
     avgHr: avgHrVal === undefined ? undefined : Math.round(avgHrVal),
     maxHr: hrs.length ? Math.max(...hrs) : undefined,
     avgCadence: avgCadVal === undefined ? undefined : Math.round(avgCadVal),
+    avgPaceSecondsPerKm:
+      distanceMeters > 0 ? elapsedSeconds / (distanceMeters / 1000) : undefined,
   };
 }

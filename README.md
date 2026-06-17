@@ -1,4 +1,4 @@
-# RunUkraine
+# Replot
 
 Merge a Garmin `.tcx` activity (real telemetry, broken GPS) with an official event
 route `.gpx` (clean path, no telemetry), then download a merged `.tcx` to upload to

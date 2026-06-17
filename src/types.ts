@@ -42,4 +42,5 @@ export interface ActivityStats {
   avgHr?: number;
   maxHr?: number;
   avgCadence?: number;
+  avgPaceSecondsPerKm?: number;
 }

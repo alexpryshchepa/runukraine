@@ -20,11 +20,30 @@ describe('translate', () => {
   });
 
   it('interpolates named params', () => {
-    expect(translate('en', 'loaded', { n: 42 })).toBe('Loaded 42 points.');
-    expect(translate('uk', 'loaded', { n: 42 })).toBe('Завантажено точок: 42.');
+    expect(translate('en', 'loaded', { n: 42 })).toBe('42 points loaded');
+    expect(translate('uk', 'loaded', { n: 42 })).toBe('Завантажено точок: 42');
   });
 
   it('falls back to the key itself when missing in all languages', () => {
     expect(translate('uk', 'does.not.exist')).toBe('does.not.exist');
+  });
+
+  it('returns the future-start error in both languages', () => {
+    expect(translate('en', 'futureStartError')).toBe("Start time can't be in the future.");
+    expect(translate('uk', 'futureStartError')).toBe('Час початку не може бути в майбутньому.');
+  });
+
+  it('returns the invalid-start error in both languages', () => {
+    expect(translate('en', 'invalidStartError')).toBe('Enter a valid start time.');
+    expect(translate('uk', 'invalidStartError')).toBe('Вкажіть коректний час старту.');
+  });
+
+  it('provides the route-source toggle strings in both languages', () => {
+    expect(translate('en', 'routeSourceOfficial')).toBe('Official routes');
+    expect(translate('uk', 'routeSourceOfficial')).toBe('Офіційні маршрути');
+    expect(translate('en', 'routeSourceCustom')).toBe('Upload your own');
+    expect(translate('uk', 'routeSourceCustom')).toBe('Власний файл');
+    expect(translate('en', 'uploadRouteLabel')).toBe('Upload a .gpx route file');
+    expect(translate('uk', 'uploadRouteLabel')).toBe('Завантажте файл маршруту .gpx');
   });
 });

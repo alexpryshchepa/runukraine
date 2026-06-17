@@ -195,19 +195,26 @@ export function ExportFaq() {
   const faq = FAQ[lang];
   return (
     <details className="faq">
-      <summary>{faq.question}</summary>
+      <summary>
+        <span className="faq-q" aria-hidden="true">
+          ?
+        </span>
+        {faq.question}
+      </summary>
       <p>{faq.intro}</p>
 
-      {faq.devices.map((device) => (
-        <details key={device.name}>
-          <summary>{device.name}</summary>
-          <ol>
-            {device.steps.map((step, i) => (
-              <li key={i}>{step}</li>
-            ))}
-          </ol>
-        </details>
-      ))}
+      <div className="faq-devices">
+        {faq.devices.map((device) => (
+          <details key={device.name}>
+            <summary>{device.name}</summary>
+            <ol>
+              {device.steps.map((step, i) => (
+                <li key={i}>{step}</li>
+              ))}
+            </ol>
+          </details>
+        ))}
+      </div>
     </details>
   );
 }

@@ -23,7 +23,13 @@ export function RoutePicker({
             aria-pressed={selected?.name === r.name}
             onClick={() => onSelect(r)}
           >
-            {r.name} — {(r.length / 1000).toFixed(2)} {t('units.km')}
+            <span className="route-name">
+              <span className="route-dot" aria-hidden="true" />
+              <span className="route-label">{r.name}</span>
+            </span>
+            <span className="route-km">
+              {(r.length / 1000).toFixed(2)} {t('units.km')}
+            </span>
           </button>
         </li>
       ))}

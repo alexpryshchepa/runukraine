@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react';
 import { parseTcx } from './lib/tcx';
-import { loadBundledRoutes } from './lib/routes';
+import { buildRoute, filenameToName, loadBundledRoutes } from './lib/routes';
 import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
 import { serializeTcx } from './lib/tcxWriter';
 import { downloadText } from './lib/download';
-import { shiftActivityStart, dateToLocalInput, localInputToDate } from './lib/editActivity';
+import {
+  shiftActivityStart,
+  dateToLocalInput,
+  localInputToDate,
+  validateStartTime,
+} from './lib/editActivity';
 import { FileDrop } from './components/FileDrop';
 import { ExportFaq } from './components/ExportFaq';
 import { ActivityEditor } from './components/ActivityEditor';
@@ -17,24 +22,64 @@ import { LanguageToggle } from './i18n/LanguageToggle';
 import { localizeError } from './i18n/localizeError';
 import type { GarminActivity, MergedActivity, Route } from './types';
 
+function BrandMark() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 18 C 8 18 8 10 12 10 C 16 10 16 6 20 6"
+        stroke="#5ca0f2"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <circle cx="4" cy="18" r="2.6" fill="#ffd23f" />
+      <circle cx="20" cy="6" r="2.2" fill="#5ca0f2" />
+    </svg>
+  );
+}
+
 export default function App() {
   const t = useT();
   const routes = useMemo(() => loadBundledRoutes(), []);
   const [activity, setActivity] = useState<GarminActivity | null>(null);
   const [name, setName] = useState<string>('activity');
+  const [fileName, setFileName] = useState<string>('');
   const [startInput, setStartInput] = useState<string>('');
-  const [route, setRoute] = useState<Route | null>(null);
+  const [routeMode, setRouteMode] = useState<'official' | 'custom'>('official');
+  const [officialRoute, setOfficialRoute] = useState<Route | null>(null);
+  const [customRoute, setCustomRoute] = useState<Route | null>(null);
+  const route = routeMode === 'custom' ? customRoute : officialRoute;
   const [error, setError] = useState<string | null>(null);
 
   function handleFile(text: string, filename: string) {
     try {
       const parsed = parseTcx(text);
       setActivity(parsed);
+      setFileName(filename);
       setName(filename.replace(/\.tcx$/i, ''));
       setStartInput(dateToLocalInput(parsed.samples[0].time));
       setError(null);
     } catch (e) {
       setActivity(null);
+      setError(localizeError(e, t));
+    }
+  }
+
+  function handleReplace() {
+    setActivity(null);
+    setRouteMode('official');
+    setOfficialRoute(null);
+    setCustomRoute(null);
+    setFileName('');
+    setName('activity');
+    setStartInput('');
+    setError(null);
+  }
+
+  function handleCustomRoute(text: string, filename: string) {
+    try {
+      setCustomRoute(buildRoute(filenameToName(filename), text));
+      setError(null);
+    } catch (e) {
       setError(localizeError(e, t));
     }
   }
@@ -58,6 +103,12 @@ export default function App() {
     }
   }, [editedActivity, route, t]);
 
+  const stats = merged ? computeStats(merged.samples) : null;
+  const startStatus = validateStartTime(startInput, new Date());
+  const startInvalid = startStatus !== null;
+  const startErrorMessage =
+    startStatus === 'future' ? t('futureStartError') : t('invalidStartError');
+
   function handleDownload() {
     if (!merged) return;
     const safe = `${name || 'activity'}.tcx`.replace(/\s+/g, '-');
@@ -67,10 +118,22 @@ export default function App() {
   return (
     <main className="app">
       <header className="app-header">
-        <h1>{t('title')}</h1>
+        <div className="brand">
+          <div className="brand-mark">
+            <BrandMark />
+          </div>
+          <div className="brand-text">
+            <span className="brand-name">Replot</span>
+            <span className="brand-tagline">{t('tagline')}</span>
+          </div>
+        </div>
         <LanguageToggle />
       </header>
-      <p className="lede">{t('lede')}</p>
+
+      <div className="hero">
+        <h1>{t('heroTitle')}</h1>
+        <p className="lede">{t('lede')}</p>
+      </div>
 
       {(error || mergeError) && (
         <p className="error" role="alert">
@@ -78,49 +141,187 @@ export default function App() {
         </p>
       )}
 
-      <section>
-        <h2>{t('step1')}</h2>
-        <FileDrop onFile={handleFile} label={t('chooseFile')} />
-        {activity && <p>{t('loaded', { n: activity.samples.length })}</p>}
-        <ExportFaq />
-      </section>
-
-      {activity && (
+      <div className="steps">
         <section>
-          <h2>{t('step2')}</h2>
-          <ActivityEditor
-            name={name}
-            startInput={startInput}
-            onNameChange={setName}
-            onStartChange={setStartInput}
-          />
-        </section>
-      )}
+          <div className="step-head">
+            <div className="step-badge">1</div>
+            <h2>{t('step1')}</h2>
+          </div>
 
-      {activity && (
-        <section>
-          <h2>{t('step3')}</h2>
-          <RoutePicker routes={routes} selected={route} onSelect={setRoute} />
-        </section>
-      )}
+          {activity ? (
+            <div className="loaded-card">
+              <div className="loaded-icon" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </div>
+              <div className="loaded-info">
+                <div className="loaded-name">{fileName}</div>
+                <div className="loaded-points">{t('loaded', { n: activity.samples.length })}</div>
+              </div>
+              <button type="button" className="btn-replace" onClick={handleReplace}>
+                {t('replace')}
+              </button>
+            </div>
+          ) : (
+            <FileDrop
+              onFile={handleFile}
+              label={t('chooseFile')}
+              title={t('dropTitle')}
+              hint={t('dropHint')}
+            />
+          )}
 
-      {merged && (
-        <section>
-          <h2>{t('step4')}</h2>
-          <MapPreview merged={merged.samples} original={editedActivity?.samples} />
-          <StatsSummary stats={computeStats(merged.samples)} />
-          <button type="button" onClick={handleDownload}>
-            {t('download')}
-          </button>
-          <p>
-            {t('uploadPrefix')}
-            <a href="https://www.strava.com/upload/select" target="_blank" rel="noreferrer">
-              strava.com/upload
-            </a>
-            {t('uploadSuffix')}
-          </p>
+          <div className="privacy">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span>{t('privacy')}</span>
+          </div>
+
+          <ExportFaq />
         </section>
-      )}
+
+        {activity && (
+          <section>
+            <div className="step-head">
+              <div className="step-badge">2</div>
+              <h2>{t('step2')}</h2>
+            </div>
+            <ActivityEditor
+              name={name}
+              startInput={startInput}
+              startInvalid={startInvalid}
+              startError={startErrorMessage}
+              onNameChange={setName}
+              onStartChange={setStartInput}
+            />
+          </section>
+        )}
+
+        {activity && !startInvalid && (
+          <section>
+            <div className="step-head">
+              <div className="step-badge">3</div>
+              <h2>{t('step3')}</h2>
+            </div>
+            <div className="route-source-toggle" role="group" aria-label={t('step3')}>
+              <button
+                type="button"
+                aria-pressed={routeMode === 'official'}
+                onClick={() => setRouteMode('official')}
+              >
+                {t('routeSourceOfficial')}
+              </button>
+              <button
+                type="button"
+                aria-pressed={routeMode === 'custom'}
+                onClick={() => setRouteMode('custom')}
+              >
+                {t('routeSourceCustom')}
+              </button>
+            </div>
+            {routeMode === 'official' ? (
+              <RoutePicker routes={routes} selected={officialRoute} onSelect={setOfficialRoute} />
+            ) : customRoute ? (
+              <div className="loaded-card">
+                <div className="loaded-icon" aria-hidden="true">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                </div>
+                <div className="loaded-info">
+                  <div className="loaded-name">{customRoute.name}</div>
+                  <div className="loaded-points">
+                    {(customRoute.length / 1000).toFixed(2)} {t('units.km')}
+                  </div>
+                </div>
+                <button type="button" className="btn-replace" onClick={() => setCustomRoute(null)}>
+                  {t('replace')}
+                </button>
+              </div>
+            ) : (
+              <FileDrop
+                accept=".gpx"
+                onFile={handleCustomRoute}
+                label={t('uploadRouteLabel')}
+                title={t('uploadRouteTitle')}
+                hint={t('uploadRouteHint')}
+              />
+            )}
+          </section>
+        )}
+
+        {merged && stats && !startInvalid && (
+          <section>
+            <div className="step-head">
+              <div className="step-badge">4</div>
+              <h2>{t('step4')}</h2>
+            </div>
+            <MapPreview
+              merged={merged.samples}
+              original={editedActivity?.samples}
+              routeName={route?.name}
+              distanceKm={stats.distanceMeters / 1000}
+            />
+            <StatsSummary stats={stats} />
+            <button type="button" className="btn-download" onClick={handleDownload}>
+              <svg
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3v12" />
+                <path d="M7 11l5 5 5-5" />
+                <path d="M4 20h16" />
+              </svg>
+              {t('download')}
+            </button>
+            <p className="upload-hint">
+              {t('uploadPrefix')}
+              <a href="https://www.strava.com/upload/select" target="_blank" rel="noreferrer">
+                strava.com/upload
+              </a>
+              {t('uploadSuffix')}
+            </p>
+          </section>
+        )}
+      </div>
 
       <footer className="app-footer">
         <p>{t('disclaimer')}</p>
