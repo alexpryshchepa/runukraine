@@ -46,11 +46,11 @@ type Messages = {
 
 /** Simple, nested string tables. `errors.*` are resolved by error code. */
 const en: Messages = {
-  htmlTitle: 'RunUkraine — track merger',
-  title: 'RunUkraine — track merger',
+  htmlTitle: 'Replot — track merger',
+  title: 'Replot — track merger',
   tagline: 'Track merger',
   heroTitle: "Rescue the run GPS couldn't record.",
-  lede: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. RunUkraine paints that telemetry onto the real event route, so your run finally looks the way it felt.',
+  lede: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your run finally looks the way it felt.',
   chooseFile: 'Choose a .tcx file',
   dropTitle: 'Drop your .tcx file here',
   dropHint: 'or click to browse — nothing leaves your device',
@@ -92,11 +92,11 @@ const en: Messages = {
 };
 
 const uk: Messages = {
-  htmlTitle: "RunUkraine — об'єднувач треків",
-  title: "RunUkraine — об'єднувач треків",
+  htmlTitle: "Replot — об'єднувач треків",
+  title: "Replot — об'єднувач треків",
   tagline: "Об'єднувач треків",
   heroTitle: 'Поверніть забіг, який не зміг записати GPS.',
-  lede: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. RunUkraine накладає цю телеметрію на справжній маршрут забігу, щоб результат нарешті виглядав так, як відчувався.',
+  lede: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут забігу, щоб результат нарешті виглядав так, як відчувався.',
   chooseFile: 'Оберіть файл .tcx',
   dropTitle: 'Перетягніть файл .tcx сюди',
   dropHint: 'або натисніть, щоб обрати — нічого не залишає ваш пристрій',

@@ -109,7 +109,7 @@ export default function App() {
             <BrandMark />
           </div>
           <div className="brand-text">
-            <span className="brand-name">RunUkraine</span>
+            <span className="brand-name">Replot</span>
             <span className="brand-tagline">{t('tagline')}</span>
           </div>
         </div>

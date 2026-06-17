@@ -55,6 +55,11 @@ describe('App localization', () => {
     fireEvent.click(screen.getByRole('button', { name: /EN/i }));
     expect(screen.getByText('Add your activity file')).toBeInTheDocument();
   });
+
+  it('shows the Replot brand name in the header', () => {
+    renderApp();
+    expect(screen.getByText('Replot')).toBeInTheDocument();
+  });
 });
 
 describe('App start-date validation', () => {
