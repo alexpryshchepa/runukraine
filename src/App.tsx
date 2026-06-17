@@ -5,6 +5,7 @@ import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
 import { serializeTcx } from './lib/tcxWriter';
 import { downloadText } from './lib/download';
+import { mergeReportWarnings } from './lib/mergeWarnings';
 import {
   shiftActivityStart,
   dateToLocalInput,
@@ -287,6 +288,12 @@ export default function App() {
               <div className="step-badge">4</div>
               <h2>{t('step4')}</h2>
             </div>
+            {merged.report &&
+              mergeReportWarnings(merged.report).map((w) => (
+                <p key={w.key} className="merge-note" role="note">
+                  {t(w.key, w.params)}
+                </p>
+              ))}
             <MapPreview
               merged={merged.samples}
               original={editedActivity?.samples}

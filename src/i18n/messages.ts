@@ -36,6 +36,9 @@ type Messages = {
   startTime: string;
   futureStartError: string;
   invalidStartError: string;
+  mergeWarnRatio: string;
+  mergeWarnFallback: string;
+  mergeWarnPartial: string;
   noRoutes: string;
   distance: string;
   time: string;
@@ -82,6 +85,12 @@ const en: Messages = {
   startTime: 'Start time',
   futureStartError: "Start time can't be in the future.",
   invalidStartError: 'Enter a valid start time.',
+  mergeWarnRatio:
+    'Your watch recorded {recorded} km but this route is {route} km ({ratio}×). Large gaps usually mean GPS jamming — check the preview.',
+  mergeWarnFallback:
+    "We couldn't verify your position from GPS, so your run was stretched evenly onto the route.",
+  mergeWarnPartial:
+    'Looks like you covered about {covered} of {route} km — the merged track ends where your run did.',
   noRoutes: 'No routes available yet. Add .gpx files to src/routes/.',
   distance: 'Distance',
   time: 'Time',
@@ -133,6 +142,12 @@ const uk: Messages = {
   startTime: 'Час старту',
   futureStartError: 'Час початку не може бути в майбутньому.',
   invalidStartError: 'Вкажіть коректний час старту.',
+  mergeWarnRatio:
+    'Годинник записав {recorded} км, але цей маршрут — {route} км ({ratio}×). Велика різниця зазвичай означає глушіння GPS — перевірте попередній перегляд.',
+  mergeWarnFallback:
+    'Не вдалося підтвердити ваше положення за GPS, тому забіг рівномірно розтягнуто на маршрут.',
+  mergeWarnPartial:
+    'Схоже, ви подолали близько {covered} з {route} км — об’єднаний трек завершується там, де закінчився ваш забіг.',
   noRoutes: 'Поки що немає маршрутів. Додайте файли .gpx до src/routes/.',
   distance: 'Дистанція',
   time: 'Час',

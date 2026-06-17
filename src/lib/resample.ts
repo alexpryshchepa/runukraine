@@ -53,7 +53,7 @@ function interpolatedVertex(
   b: ArcSample,
   route: Route,
   v: number,
-  arc: number,
+  _arc: number,
   f: number,
 ): MergedSample {
   const p = route.points[v];
