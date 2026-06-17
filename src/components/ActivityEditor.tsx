@@ -19,12 +19,12 @@ export function ActivityEditor({
   return (
     <div className="activity-editor">
       <label>
-        {t('activityName')}
+        {t('fileName')}
         <input
           type="text"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder={t('activityNamePlaceholder')}
+          placeholder={t('fileNamePlaceholder')}
         />
       </label>
       <label>

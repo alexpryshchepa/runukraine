@@ -26,8 +26,8 @@ type Messages = {
   download: string;
   uploadPrefix: string;
   uploadSuffix: string;
-  activityName: string;
-  activityNamePlaceholder: string;
+  fileName: string;
+  fileNamePlaceholder: string;
   startTime: string;
   futureStartError: string;
   invalidStartError: string;
@@ -58,7 +58,7 @@ const en: Messages = {
   loaded: '{n} points loaded',
   replace: 'Replace',
   step1: 'Add your activity file',
-  step2: 'Name it and set the start',
+  step2: 'File name and start',
   step3: 'Choose the official route',
   step4: 'Preview and download',
   mapRoute: 'Official route',
@@ -67,8 +67,8 @@ const en: Messages = {
   download: 'Download merged .tcx',
   uploadPrefix: 'Then upload it to ',
   uploadSuffix: " — and you're done.",
-  activityName: 'Activity name',
-  activityNamePlaceholder: 'My activity',
+  fileName: 'File name',
+  fileNamePlaceholder: 'File name',
   startTime: 'Start time',
   futureStartError: "Start time can't be in the future.",
   invalidStartError: 'Enter a valid start time.',
@@ -104,7 +104,7 @@ const uk: Messages = {
   loaded: 'Завантажено точок: {n}',
   replace: 'Замінити',
   step1: 'Додайте файл тренування',
-  step2: 'Назва та час старту',
+  step2: 'Назва файлу та час старту',
   step3: 'Оберіть офіційний маршрут',
   step4: 'Перегляд і завантаження',
   mapRoute: 'Офіційний маршрут',
@@ -113,8 +113,8 @@ const uk: Messages = {
   download: "Завантажити об'єднаний .tcx",
   uploadPrefix: 'Потім завантажте його на ',
   uploadSuffix: ' — і готово.',
-  activityName: 'Назва тренування',
-  activityNamePlaceholder: 'Моє тренування',
+  fileName: 'Назва файлу',
+  fileNamePlaceholder: 'Назва файлу',
   startTime: 'Час старту',
   futureStartError: 'Час початку не може бути в майбутньому.',
   invalidStartError: 'Вкажіть коректний час старту.',

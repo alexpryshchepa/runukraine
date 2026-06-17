@@ -14,7 +14,7 @@ describe('ActivityEditor', () => {
         onStartChange={onStartChange}
       />,
     );
-    const nameInput = screen.getByLabelText('Activity name') as HTMLInputElement;
+    const nameInput = screen.getByLabelText('File name') as HTMLInputElement;
     const startInput = screen.getByLabelText('Start time') as HTMLInputElement;
     expect(nameInput.value).toBe('My Run');
     expect(startInput.value).toBe('2026-06-01T08:00');
