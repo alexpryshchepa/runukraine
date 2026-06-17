@@ -30,9 +30,8 @@ npm run build    # production build
 ## Add official routes
 
 Drop event `.gpx` files into `src/routes/` and rebuild. They appear automatically in the
-route picker; the display name comes from the filename (e.g. `kyiv-half-marathon.gpx` →
-"Kyiv Half Marathon"). The bundled `sample-loop.gpx` is just for testing — replace or
-remove it.
+route picker; the display name comes from the filename (e.g.
+`5km - Odesa half marathon 2026.gpx` → "5km Odesa Half Marathon 2026").
 
 ## Use
 
