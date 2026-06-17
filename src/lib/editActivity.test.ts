@@ -3,7 +3,7 @@ import {
   shiftActivityStart,
   dateToLocalInput,
   localInputToDate,
-  isStartInFuture,
+  validateStartTime,
 } from './editActivity';
 import type { GarminActivity } from '../types';
 
@@ -52,25 +52,25 @@ describe('dateToLocalInput / localInputToDate', () => {
   });
 });
 
-describe('isStartInFuture', () => {
+describe('validateStartTime', () => {
   const now = new Date('2026-06-17T12:00:00Z');
 
-  it('returns true when the start is after now', () => {
+  it("returns 'future' when the start is after now", () => {
     const future = dateToLocalInput(new Date(now.getTime() + 3_600_000));
-    expect(isStartInFuture(future, now)).toBe(true);
+    expect(validateStartTime(future, now)).toBe('future');
   });
 
-  it('returns false when the start is before now', () => {
+  it('returns null when the start is before now', () => {
     const past = dateToLocalInput(new Date(now.getTime() - 3_600_000));
-    expect(isStartInFuture(past, now)).toBe(false);
+    expect(validateStartTime(past, now)).toBeNull();
   });
 
-  it('returns false when the start equals now', () => {
-    expect(isStartInFuture(dateToLocalInput(now), now)).toBe(false);
+  it('returns null when the start equals now', () => {
+    expect(validateStartTime(dateToLocalInput(now), now)).toBeNull();
   });
 
-  it('returns false for empty or unparseable input', () => {
-    expect(isStartInFuture('', now)).toBe(false);
-    expect(isStartInFuture('not-a-date', now)).toBe(false);
+  it("returns 'invalid' for empty or unparseable input", () => {
+    expect(validateStartTime('', now)).toBe('invalid');
+    expect(validateStartTime('not-a-date', now)).toBe('invalid');
   });
 });

@@ -30,6 +30,7 @@ type Messages = {
   activityNamePlaceholder: string;
   startTime: string;
   futureStartError: string;
+  invalidStartError: string;
   noRoutes: string;
   distance: string;
   time: string;
@@ -70,6 +71,7 @@ const en: Messages = {
   activityNamePlaceholder: 'My activity',
   startTime: 'Start time',
   futureStartError: "Start time can't be in the future.",
+  invalidStartError: 'Enter a valid start time.',
   noRoutes: 'No routes available yet. Add .gpx files to src/routes/.',
   distance: 'Distance',
   time: 'Time',
@@ -115,6 +117,7 @@ const uk: Messages = {
   activityNamePlaceholder: 'Моє тренування',
   startTime: 'Час старту',
   futureStartError: 'Час початку не може бути в майбутньому.',
+  invalidStartError: 'Вкажіть коректний час старту.',
   noRoutes: 'Поки що немає маршрутів. Додайте файли .gpx до src/routes/.',
   distance: 'Дистанція',
   time: 'Час',

@@ -25,8 +25,17 @@ export function localInputToDate(value: string): Date {
   return new Date(value);
 }
 
-export function isStartInFuture(value: string, now: Date): boolean {
+export type StartTimeError = 'future' | 'invalid';
+
+/**
+ * Validate a datetime-local start value against `now`.
+ * - 'invalid' — empty or unparseable input
+ * - 'future'  — a valid date strictly after `now`
+ * - null      — a valid, non-future date
+ */
+export function validateStartTime(value: string, now: Date): StartTimeError | null {
   const d = localInputToDate(value);
-  if (Number.isNaN(d.getTime())) return false;
-  return d.getTime() > now.getTime();
+  if (Number.isNaN(d.getTime())) return 'invalid';
+  if (d.getTime() > now.getTime()) return 'future';
+  return null;
 }

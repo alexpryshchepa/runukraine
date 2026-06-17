@@ -9,7 +9,7 @@ import {
   shiftActivityStart,
   dateToLocalInput,
   localInputToDate,
-  isStartInFuture,
+  validateStartTime,
 } from './lib/editActivity';
 import { FileDrop } from './components/FileDrop';
 import { ExportFaq } from './components/ExportFaq';
@@ -90,7 +90,10 @@ export default function App() {
   }, [editedActivity, route, t]);
 
   const stats = merged ? computeStats(merged.samples) : null;
-  const startInFuture = isStartInFuture(startInput, new Date());
+  const startStatus = validateStartTime(startInput, new Date());
+  const startInvalid = startStatus !== null;
+  const startErrorMessage =
+    startStatus === 'future' ? t('futureStartError') : t('invalidStartError');
 
   function handleDownload() {
     if (!merged) return;
@@ -194,15 +197,15 @@ export default function App() {
             <ActivityEditor
               name={name}
               startInput={startInput}
-              startInvalid={startInFuture}
-              startError={t('futureStartError')}
+              startInvalid={startInvalid}
+              startError={startErrorMessage}
               onNameChange={setName}
               onStartChange={setStartInput}
             />
           </section>
         )}
 
-        {activity && !startInFuture && (
+        {activity && !startInvalid && (
           <section>
             <div className="step-head">
               <div className="step-badge">3</div>
@@ -212,7 +215,7 @@ export default function App() {
           </section>
         )}
 
-        {merged && stats && !startInFuture && (
+        {merged && stats && !startInvalid && (
           <section>
             <div className="step-head">
               <div className="step-badge">4</div>

@@ -80,4 +80,14 @@ describe('App start-date validation', () => {
     expect(screen.queryByText("Start time can't be in the future.")).not.toBeInTheDocument();
     expect(start).not.toHaveClass('input-danger');
   });
+
+  it('hides later steps and flags the field when the start is empty or incomplete', async () => {
+    const start = await loadActivityInEnglish();
+
+    fireEvent.change(start, { target: { value: '' } });
+
+    expect(screen.queryByText('Choose the official route')).not.toBeInTheDocument();
+    expect(screen.getByText('Enter a valid start time.')).toBeInTheDocument();
+    expect(start).toHaveClass('input-danger');
+  });
 });

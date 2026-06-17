@@ -32,4 +32,9 @@ describe('translate', () => {
     expect(translate('en', 'futureStartError')).toBe("Start time can't be in the future.");
     expect(translate('uk', 'futureStartError')).toBe('Час початку не може бути в майбутньому.');
   });
+
+  it('returns the invalid-start error in both languages', () => {
+    expect(translate('en', 'invalidStartError')).toBe('Enter a valid start time.');
+    expect(translate('uk', 'invalidStartError')).toBe('Вкажіть коректний час старту.');
+  });
 });
