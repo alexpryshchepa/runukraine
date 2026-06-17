@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { shiftActivityStart, dateToLocalInput, localInputToDate } from './editActivity';
+import {
+  shiftActivityStart,
+  dateToLocalInput,
+  localInputToDate,
+  isStartInFuture,
+} from './editActivity';
 import type { GarminActivity } from '../types';
 
 const activity: GarminActivity = {
@@ -44,5 +49,28 @@ describe('dateToLocalInput / localInputToDate', () => {
   });
   it('returns an invalid date for empty input', () => {
     expect(Number.isNaN(localInputToDate('').getTime())).toBe(true);
+  });
+});
+
+describe('isStartInFuture', () => {
+  const now = new Date('2026-06-17T12:00:00Z');
+
+  it('returns true when the start is after now', () => {
+    const future = dateToLocalInput(new Date(now.getTime() + 3_600_000));
+    expect(isStartInFuture(future, now)).toBe(true);
+  });
+
+  it('returns false when the start is before now', () => {
+    const past = dateToLocalInput(new Date(now.getTime() - 3_600_000));
+    expect(isStartInFuture(past, now)).toBe(false);
+  });
+
+  it('returns false when the start equals now', () => {
+    expect(isStartInFuture(dateToLocalInput(now), now)).toBe(false);
+  });
+
+  it('returns false for empty or unparseable input', () => {
+    expect(isStartInFuture('', now)).toBe(false);
+    expect(isStartInFuture('not-a-date', now)).toBe(false);
   });
 });

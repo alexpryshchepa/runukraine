@@ -24,3 +24,9 @@ export function dateToLocalInput(d: Date): string {
 export function localInputToDate(value: string): Date {
   return new Date(value);
 }
+
+export function isStartInFuture(value: string, now: Date): boolean {
+  const d = localInputToDate(value);
+  if (Number.isNaN(d.getTime())) return false;
+  return d.getTime() > now.getTime();
+}
