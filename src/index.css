@@ -466,6 +466,31 @@ section {
   color: var(--on-yellow);
 }
 
+/* Route source toggle (Official / Custom) */
+.route-source-toggle {
+  display: inline-flex;
+  gap: 4px;
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  background: var(--surface-2);
+  margin-bottom: 14px;
+}
+.route-source-toggle button {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-faint);
+  transition: background 0.15s, color 0.15s;
+}
+.route-source-toggle button[aria-pressed='true'] {
+  background: var(--yellow);
+  color: var(--on-yellow);
+}
+
 /* Stats grid */
 .stats {
   display: grid;

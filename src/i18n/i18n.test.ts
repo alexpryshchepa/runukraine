@@ -37,4 +37,13 @@ describe('translate', () => {
     expect(translate('en', 'invalidStartError')).toBe('Enter a valid start time.');
     expect(translate('uk', 'invalidStartError')).toBe('Вкажіть коректний час старту.');
   });
+
+  it('provides the route-source toggle strings in both languages', () => {
+    expect(translate('en', 'routeSourceOfficial')).toBe('Official routes');
+    expect(translate('uk', 'routeSourceOfficial')).toBe('Офіційні маршрути');
+    expect(translate('en', 'routeSourceCustom')).toBe('Upload your own');
+    expect(translate('uk', 'routeSourceCustom')).toBe('Власний файл');
+    expect(translate('en', 'uploadRouteLabel')).toBe('Upload a .gpx route file');
+    expect(translate('uk', 'uploadRouteLabel')).toBe('Завантажте файл маршруту .gpx');
+  });
 });

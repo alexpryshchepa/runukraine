@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { parseTcx } from './lib/tcx';
-import { loadBundledRoutes } from './lib/routes';
+import { buildRoute, filenameToName, loadBundledRoutes } from './lib/routes';
 import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
 import { serializeTcx } from './lib/tcxWriter';
@@ -44,7 +44,10 @@ export default function App() {
   const [name, setName] = useState<string>('activity');
   const [fileName, setFileName] = useState<string>('');
   const [startInput, setStartInput] = useState<string>('');
-  const [route, setRoute] = useState<Route | null>(null);
+  const [routeMode, setRouteMode] = useState<'official' | 'custom'>('official');
+  const [officialRoute, setOfficialRoute] = useState<Route | null>(null);
+  const [customRoute, setCustomRoute] = useState<Route | null>(null);
+  const route = routeMode === 'custom' ? customRoute : officialRoute;
   const [error, setError] = useState<string | null>(null);
 
   function handleFile(text: string, filename: string) {
@@ -63,11 +66,22 @@ export default function App() {
 
   function handleReplace() {
     setActivity(null);
-    setRoute(null);
+    setRouteMode('official');
+    setOfficialRoute(null);
+    setCustomRoute(null);
     setFileName('');
     setName('activity');
     setStartInput('');
     setError(null);
+  }
+
+  function handleCustomRoute(text: string, filename: string) {
+    try {
+      setCustomRoute(buildRoute(filenameToName(filename), text));
+      setError(null);
+    } catch (e) {
+      setError(localizeError(e, t));
+    }
   }
 
   const editedActivity = useMemo<GarminActivity | null>(() => {
@@ -211,7 +225,59 @@ export default function App() {
               <div className="step-badge">3</div>
               <h2>{t('step3')}</h2>
             </div>
-            <RoutePicker routes={routes} selected={route} onSelect={setRoute} />
+            <div className="route-source-toggle" role="group" aria-label={t('step3')}>
+              <button
+                type="button"
+                aria-pressed={routeMode === 'official'}
+                onClick={() => setRouteMode('official')}
+              >
+                {t('routeSourceOfficial')}
+              </button>
+              <button
+                type="button"
+                aria-pressed={routeMode === 'custom'}
+                onClick={() => setRouteMode('custom')}
+              >
+                {t('routeSourceCustom')}
+              </button>
+            </div>
+            {routeMode === 'official' ? (
+              <RoutePicker routes={routes} selected={officialRoute} onSelect={setOfficialRoute} />
+            ) : customRoute ? (
+              <div className="loaded-card">
+                <div className="loaded-icon" aria-hidden="true">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                </div>
+                <div className="loaded-info">
+                  <div className="loaded-name">{customRoute.name}</div>
+                  <div className="loaded-points">
+                    {(customRoute.length / 1000).toFixed(2)} {t('units.km')}
+                  </div>
+                </div>
+                <button type="button" className="btn-replace" onClick={() => setCustomRoute(null)}>
+                  {t('replace')}
+                </button>
+              </div>
+            ) : (
+              <FileDrop
+                accept=".gpx"
+                onFile={handleCustomRoute}
+                label={t('uploadRouteLabel')}
+                title={t('uploadRouteTitle')}
+                hint={t('uploadRouteHint')}
+              />
+            )}
           </section>
         )}
 

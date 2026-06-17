@@ -21,6 +21,11 @@ type Messages = {
   step3: string;
   step4: string;
   mapRoute: string;
+  routeSourceOfficial: string;
+  routeSourceCustom: string;
+  uploadRouteTitle: string;
+  uploadRouteHint: string;
+  uploadRouteLabel: string;
   legendMerged: string;
   legendOriginal: string;
   download: string;
@@ -59,9 +64,14 @@ const en: Messages = {
   replace: 'Replace',
   step1: 'Add your activity file',
   step2: 'File name and start',
-  step3: 'Choose the official route',
+  step3: 'Choose the route',
   step4: 'Preview and download',
-  mapRoute: 'Official route',
+  mapRoute: 'Route',
+  routeSourceOfficial: 'Official routes',
+  routeSourceCustom: 'Upload your own',
+  uploadRouteTitle: 'Upload your own .gpx route',
+  uploadRouteHint: 'or click to browse — nothing leaves your device',
+  uploadRouteLabel: 'Upload a .gpx route file',
   legendMerged: 'Merged route',
   legendOriginal: 'Original GPS (jammed)',
   download: 'Download merged .tcx',
@@ -105,9 +115,14 @@ const uk: Messages = {
   replace: 'Замінити',
   step1: 'Додайте файл тренування',
   step2: 'Назва файлу та час старту',
-  step3: 'Оберіть офіційний маршрут',
+  step3: 'Оберіть маршрут',
   step4: 'Перегляд і завантаження',
-  mapRoute: 'Офіційний маршрут',
+  mapRoute: 'Маршрут',
+  routeSourceOfficial: 'Офіційні маршрути',
+  routeSourceCustom: 'Власний файл',
+  uploadRouteTitle: 'Завантажте власний маршрут .gpx',
+  uploadRouteHint: 'або натисніть, щоб обрати — нічого не залишає ваш пристрій',
+  uploadRouteLabel: 'Завантажте файл маршруту .gpx',
   legendMerged: "Об'єднаний маршрут",
   legendOriginal: 'Початковий GPS (заглушений)',
   download: "Завантажити об'єднаний .tcx",
