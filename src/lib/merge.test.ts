@@ -61,3 +61,54 @@ describe('mergeActivityWithRoute', () => {
     expect(() => mergeActivityWithRoute(activity, badRoute)).toThrow(/2 points/i);
   });
 });
+
+const M_PER_DEG_LON = 111320;
+
+function eastRoute(lonEnd: number): Route {
+  const points: RoutePoint[] = [
+    { lat: 0, lon: 0 },
+    { lat: 0, lon: lonEnd },
+  ];
+  const cumulative = cumulativeDistances(points);
+  return { name: 'East', points, cumulative, length: cumulative[1] };
+}
+
+function gs(tSec: number, distance: number, lat?: number, lon?: number) {
+  return { time: new Date(2026, 0, 1, 0, 0, tSec), distance, lat, lon };
+}
+
+describe('mergeActivityWithRoute — accuracy', () => {
+  it('reports a fallback merge when there is no usable GPS', () => {
+    const route = eastRoute(0.09);
+    const merged = mergeActivityWithRoute(
+      { samples: [gs(0, 0), gs(30, 13500), gs(60, 27000)] },
+      route,
+    );
+    expect(merged.report?.fallbackUsed).toBe(true);
+    expect(merged.samples[merged.samples.length - 1].distance).toBeCloseTo(route.length, 0);
+  });
+
+  it('keeps a clean section on its true arc despite a localized jam', () => {
+    const route = eastRoute(0.09);
+    const samples = [];
+    for (let d = 0; d <= 5000; d += 1000) samples.push(gs(samples.length * 30, d, 0, d / M_PER_DEG_LON));
+    samples.push(gs(samples.length * 30, 15000)); // jammed, no GPS
+    [25000, 26000, 27000].forEach((d, i) =>
+      samples.push(gs(samples.length * 30, d, 0, (8000 + i * 1000) / M_PER_DEG_LON)),
+    );
+    const merged = mergeActivityWithRoute({ samples, sport: 'Running' }, route);
+    expect(merged.report?.fallbackUsed).toBe(false);
+    // sample recorded at 5000 m lands near arc 5000, not ~1855 (27000→10018 global scale)
+    const fifth = merged.samples[5];
+    expect(fifth.distance).toBeGreaterThan(4000);
+  });
+
+  it('stops where the runner stopped on a partial run', () => {
+    const route = eastRoute(0.09);
+    const samples = [];
+    for (let d = 0; d <= 7000; d += 1000) samples.push(gs(samples.length * 30, d, 0, d / M_PER_DEG_LON));
+    const merged = mergeActivityWithRoute({ samples, sport: 'Running' }, route);
+    expect(merged.report?.partial).toBe(true);
+    expect(merged.samples[merged.samples.length - 1].distance).toBeLessThan(8000);
+  });
+});
