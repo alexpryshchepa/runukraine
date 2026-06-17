@@ -59,3 +59,50 @@ export function interpolateAlongPath(
   }
   return result;
 }
+
+export interface PathProjection {
+  arcLength: number;
+  residualMeters: number;
+}
+
+export function projectPointToPath(
+  points: RoutePoint[],
+  cumulative: number[],
+  lat: number,
+  lon: number,
+  fromArc = 0,
+): PathProjection {
+  const total = cumulative[cumulative.length - 1];
+  const from = Math.max(0, Math.min(fromArc, total));
+  const mPerDegLat = 111320;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+
+  // start at the first segment whose far end is at/after `from`
+  let startSeg = 0;
+  while (startSeg < points.length - 2 && cumulative[startSeg + 1] < from) startSeg++;
+
+  let best: PathProjection = { arcLength: from, residualMeters: Infinity };
+  for (let i = startSeg; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const segLen = cumulative[i + 1] - cumulative[i];
+    if (segLen === 0) continue;
+    const mPerDegLon = mPerDegLat * Math.cos(toRad(a.lat));
+    const bx = (b.lon - a.lon) * mPerDegLon;
+    const by = (b.lat - a.lat) * mPerDegLat;
+    const px = (lon - a.lon) * mPerDegLon;
+    const py = (lat - a.lat) * mPerDegLat;
+    const len2 = bx * bx + by * by;
+    let t = len2 === 0 ? 0 : (px * bx + py * by) / len2;
+    // clamp so the foot's arc-length stays within [from, segment end]
+    const tMin = Math.max(0, (from - cumulative[i]) / segLen);
+    t = Math.max(tMin, Math.min(1, t));
+    const fx = t * bx;
+    const fy = t * by;
+    const residual = Math.hypot(px - fx, py - fy);
+    if (residual < best.residualMeters) {
+      best = { arcLength: cumulative[i] + t * segLen, residualMeters: residual };
+    }
+  }
+  return best;
+}

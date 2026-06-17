@@ -21,23 +21,13 @@ export function parseTcx(xml: string): GarminActivity {
   const sport = activityEl?.getAttribute('Sport') ?? undefined;
 
   const samples: GarminSample[] = [];
-  let offset = 0;
-  let lastCum = -Infinity;
 
   for (const tp of trackpoints) {
     const timeStr = textNS(tp, 'Time');
     const distStr = textNS(tp, 'DistanceMeters');
     if (!timeStr || distStr === undefined) continue; // both are required for the merge
 
-    let cum = Number(distStr) + offset;
-    if (cum < lastCum) {
-      // the device reset its distance counter (new lap) — continue from where we were
-      offset = lastCum;
-      cum = Number(distStr) + offset;
-    }
-    lastCum = cum;
-
-    const sample: GarminSample = { time: new Date(timeStr), distance: cum };
+    const sample: GarminSample = { time: new Date(timeStr), distance: Number(distStr) };
 
     const hrEl = tp.getElementsByTagNameNS('*', 'HeartRateBpm')[0];
     const hrVal = hrEl?.getElementsByTagNameNS('*', 'Value')[0]?.textContent?.trim();

@@ -31,9 +31,20 @@ export interface MergedSample extends GarminSample {
   lon: number;
 }
 
+export interface MergeReport {
+  recordedDistance: number;
+  routeLength: number;
+  ratio: number;
+  anchorCount: number;
+  fallbackUsed: boolean;
+  partial: boolean;
+  coveredFraction: number;
+}
+
 export interface MergedActivity {
   samples: MergedSample[];
   sport?: string;
+  report?: MergeReport;
 }
 
 export interface ActivityStats {

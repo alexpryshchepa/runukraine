@@ -62,10 +62,9 @@ describe('parseTcx', () => {
     expect(a.samples[0].lon).toBeCloseTo(30.1, 5);
     expect(a.samples[1].distance).toBe(100);
   });
-  it('flattens laps into one monotonic distance stream even when the counter resets', () => {
+  it('extracts raw per-trackpoint distances (lap merging happens in clean)', () => {
     const a = parseTcx(twoLapsReset);
-    const distances = a.samples.map((s) => s.distance);
-    expect(distances).toEqual([0, 500, 500, 900]);
+    expect(a.samples.map((s) => s.distance)).toEqual([0, 500, 0, 400]);
   });
   it('throws when there is no distance data', () => {
     expect(() => parseTcx(noDistance)).toThrow(/no distance/i);
