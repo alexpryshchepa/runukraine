@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { haversine, cumulativeDistances, interpolateAlongPath } from './geo';
+import { haversine, cumulativeDistances, interpolateAlongPath, projectPointToPath } from './geo';
 import type { RoutePoint } from '../types';
 
 describe('haversine', () => {
@@ -51,5 +51,35 @@ describe('interpolateAlongPath', () => {
   it('clamps distances beyond the path end', () => {
     const p = interpolateAlongPath(pts, cum, cum[1] * 2);
     expect(p.lon).toBeCloseTo(1, 6);
+  });
+});
+
+describe('projectPointToPath', () => {
+  const pts: RoutePoint[] = [
+    { lat: 0, lon: 0 },
+    { lat: 0, lon: 1 }, // ~111195 m east along the equator
+  ];
+  const cum = cumulativeDistances(pts);
+
+  it('projects a point on the path to ~0 residual at its arc-length', () => {
+    const r = projectPointToPath(pts, cum, 0, 0.5);
+    expect(r.residualMeters).toBeLessThan(1);
+    expect(r.arcLength).toBeCloseTo(cum[1] / 2, -1); // within ~10 m
+  });
+
+  it('measures perpendicular offset as the residual', () => {
+    const r = projectPointToPath(pts, cum, 0.001, 0.5); // ~111 m north of the line
+    expect(r.residualMeters).toBeGreaterThan(100);
+    expect(r.residualMeters).toBeLessThan(125);
+  });
+
+  it('clamps the foot point to the segment ends', () => {
+    const r = projectPointToPath(pts, cum, 0, 2); // beyond the east end
+    expect(r.arcLength).toBeCloseTo(cum[1], -1);
+  });
+
+  it('never returns an arc-length earlier than fromArc', () => {
+    const r = projectPointToPath(pts, cum, 0, 0.1, cum[1] / 2);
+    expect(r.arcLength).toBeGreaterThanOrEqual(cum[1] / 2 - 1);
   });
 });
