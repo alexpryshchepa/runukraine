@@ -5,7 +5,12 @@ import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
 import { serializeTcx } from './lib/tcxWriter';
 import { downloadText } from './lib/download';
-import { shiftActivityStart, dateToLocalInput, localInputToDate } from './lib/editActivity';
+import {
+  shiftActivityStart,
+  dateToLocalInput,
+  localInputToDate,
+  isStartInFuture,
+} from './lib/editActivity';
 import { FileDrop } from './components/FileDrop';
 import { ExportFaq } from './components/ExportFaq';
 import { ActivityEditor } from './components/ActivityEditor';
@@ -85,6 +90,7 @@ export default function App() {
   }, [editedActivity, route, t]);
 
   const stats = merged ? computeStats(merged.samples) : null;
+  const startInFuture = isStartInFuture(startInput, new Date());
 
   function handleDownload() {
     if (!merged) return;
@@ -188,13 +194,15 @@ export default function App() {
             <ActivityEditor
               name={name}
               startInput={startInput}
+              startInvalid={startInFuture}
+              startError={t('futureStartError')}
               onNameChange={setName}
               onStartChange={setStartInput}
             />
           </section>
         )}
 
-        {activity && (
+        {activity && !startInFuture && (
           <section>
             <div className="step-head">
               <div className="step-badge">3</div>
@@ -204,7 +212,7 @@ export default function App() {
           </section>
         )}
 
-        {merged && stats && (
+        {merged && stats && !startInFuture && (
           <section>
             <div className="step-head">
               <div className="step-badge">4</div>
