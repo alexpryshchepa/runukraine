@@ -1,7 +1,11 @@
 # Custom .gpx Route Upload — Design Spec
 
+> ⚠️ **SUPERSEDED** by `docs/superpowers/specs/2026-06-17-replot-rebrand-and-step3-route-toggle-design.md`.
+> The "append + auto-select" design below was replaced by an Official ↔ Custom **toggle** in step 3.
+> Kept for history; do not implement.
+
 **Date:** 2026-06-17
-**Status:** Approved (design), pending implementation plan
+**Status:** Superseded
 **Builds on:** `docs/superpowers/specs/2026-06-15-edit-step-and-export-faq-design.md`
 
 ## Goal

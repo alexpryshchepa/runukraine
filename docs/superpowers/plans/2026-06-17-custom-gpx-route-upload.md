@@ -1,5 +1,9 @@
 # Custom .gpx Route Upload Implementation Plan
 
+> ⚠️ **SUPERSEDED** by the step-3 toggle design
+> (`docs/superpowers/specs/2026-06-17-replot-rebrand-and-step3-route-toggle-design.md`). Kept for
+> history; do not implement.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** In step 3, let the user upload their own `.gpx` route alongside the bundled routes; the uploaded route is appended to the list, auto-selected, and flows into the step-4 preview/merge/download.
