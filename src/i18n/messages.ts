@@ -1,15 +1,24 @@
 import { ERROR_MESSAGES_EN, type ErrorCode } from '../lib/errors';
+import type { SportKind } from '../lib/sport';
 
 export type Lang = 'uk' | 'en';
 
 export const LANGS: Lang[] = ['uk', 'en'];
 
+/**
+ * Copy that names the sport. Whole strings per activity type rather than a
+ * `{activity}` placeholder — Ukrainian declines the pronoun and verb with the
+ * noun's gender (`забіг, який … виглядав` vs `тренування, яке … виглядало`),
+ * which no single template can express.
+ */
+type ByKind = Record<SportKind, string>;
+
 type Messages = {
   htmlTitle: string;
   title: string;
-  tagline: string;
-  heroTitle: string;
-  lede: string;
+  tagline: ByKind;
+  heroTitle: ByKind;
+  lede: ByKind;
   chooseFile: string;
   dropTitle: string;
   dropHint: string;
@@ -37,18 +46,18 @@ type Messages = {
   futureStartError: string;
   invalidStartError: string;
   mergeWarnRatio: string;
-  mergeWarnFallback: string;
-  mergeWarnPartial: string;
+  mergeWarnStretched: ByKind;
   noRoutes: string;
   distance: string;
   time: string;
   pace: string;
+  speed: string;
   avgHr: string;
   maxHr: string;
   avgCadence: string;
   langLabel: string;
   disclaimer: string;
-  units: { km: string; bpm: string; spm: string; minPerKm: string };
+  units: { km: string; bpm: string; spm: string; rpm: string; minPerKm: string; kmh: string };
   errors: Record<ErrorCode, string>;
 };
 
@@ -56,9 +65,21 @@ type Messages = {
 const en: Messages = {
   htmlTitle: 'Replot',
   title: 'Replot',
-  tagline: 'Put your run back on route',
-  heroTitle: "Rescue the run GPS couldn't record.",
-  lede: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your run finally looks the way it felt.',
+  tagline: {
+    run: 'Put your run back on route',
+    ride: 'Put your ride back on route',
+    other: 'Put your activity back on route',
+  },
+  heroTitle: {
+    run: "Rescue the run GPS couldn't record.",
+    ride: "Rescue the ride GPS couldn't record.",
+    other: "Rescue the activity GPS couldn't record.",
+  },
+  lede: {
+    run: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your run finally looks the way it felt.',
+    ride: 'When the signal was jammed, your computer still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your ride finally looks the way it felt.',
+    other: 'When the signal was jammed, your watch still kept the truth — your time, distance, heart rate and cadence. Replot paints that telemetry onto the real event route, so your activity finally looks the way it felt.',
+  },
   chooseFile: 'Choose a .tcx file',
   dropTitle: 'Drop your .tcx file here',
   dropHint: 'or click to browse — nothing leaves your device',
@@ -87,14 +108,16 @@ const en: Messages = {
   invalidStartError: 'Enter a valid start time.',
   mergeWarnRatio:
     'Your watch recorded {recorded} km but this route is {route} km ({ratio}×). Large gaps usually mean GPS jamming — check the preview.',
-  mergeWarnFallback:
-    "We couldn't verify your position from GPS, so your run was stretched evenly onto the route.",
-  mergeWarnPartial:
-    'Looks like you covered about {covered} of {route} km — the merged track ends where your run did.',
+  mergeWarnStretched: {
+    run: 'Your watch recorded {recorded} km of this {route} km route — the run was stretched evenly to cover the whole course.',
+    ride: 'Your computer recorded {recorded} km of this {route} km route — the ride was stretched evenly to cover the whole course.',
+    other: 'Your watch recorded {recorded} km of this {route} km route — the activity was stretched evenly to cover the whole course.',
+  },
   noRoutes: 'No routes available yet. Add .gpx files to src/routes/.',
   distance: 'Distance',
   time: 'Time',
   pace: 'Pace',
+  speed: 'Avg speed',
   avgHr: 'Avg HR',
   maxHr: 'Max HR',
   avgCadence: 'Avg cadence',
@@ -105,7 +128,9 @@ const en: Messages = {
     km: 'km',
     bpm: 'bpm',
     spm: 'spm',
+    rpm: 'rpm',
     minPerKm: '/km',
+    kmh: 'km/h',
   },
   errors: ERROR_MESSAGES_EN,
 };
@@ -113,9 +138,21 @@ const en: Messages = {
 const uk: Messages = {
   htmlTitle: 'Replot',
   title: 'Replot',
-  tagline: 'Поверніть забіг на маршрут',
-  heroTitle: 'Поверніть забіг, який не зміг записати GPS.',
-  lede: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут забігу, щоб результат нарешті виглядав так, як відчувався.',
+  tagline: {
+    run: 'Поверніть забіг на маршрут',
+    ride: 'Поверніть заїзд на маршрут',
+    other: 'Поверніть тренування на маршрут',
+  },
+  heroTitle: {
+    run: 'Поверніть забіг, який не зміг записати GPS.',
+    ride: 'Поверніть заїзд, який не зміг записати GPS.',
+    other: 'Поверніть тренування, яке не зміг записати GPS.',
+  },
+  lede: {
+    run: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут, щоб ваш забіг нарешті виглядав так, як відчувався.',
+    ride: 'Коли сигнал глушили, велокомп’ютер усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут, щоб ваш заїзд нарешті виглядав так, як відчувався.',
+    other: 'Коли сигнал глушили, годинник усе одно зберіг головне — ваш час, дистанцію, пульс і каденс. Replot накладає цю телеметрію на справжній маршрут, щоб ваше тренування нарешті виглядало так, як відчувалося.',
+  },
   chooseFile: 'Оберіть файл .tcx',
   dropTitle: 'Перетягніть файл .tcx сюди',
   dropHint: 'або натисніть, щоб обрати — нічого не залишає ваш пристрій',
@@ -144,14 +181,16 @@ const uk: Messages = {
   invalidStartError: 'Вкажіть коректний час старту.',
   mergeWarnRatio:
     'Годинник записав {recorded} км, але цей маршрут — {route} км ({ratio}×). Велика різниця зазвичай означає глушіння GPS — перевірте попередній перегляд.',
-  mergeWarnFallback:
-    'Не вдалося підтвердити ваше положення за GPS, тому забіг рівномірно розтягнуто на маршрут.',
-  mergeWarnPartial:
-    'Схоже, ви подолали близько {covered} з {route} км — об’єднаний трек завершується там, де закінчився ваш забіг.',
+  mergeWarnStretched: {
+    run: 'Годинник записав {recorded} км із цього маршруту завдовжки {route} км — забіг рівномірно розтягнуто на всю дистанцію.',
+    ride: 'Велокомп’ютер записав {recorded} км із цього маршруту завдовжки {route} км — заїзд рівномірно розтягнуто на всю дистанцію.',
+    other: 'Годинник записав {recorded} км із цього маршруту завдовжки {route} км — тренування рівномірно розтягнуто на всю дистанцію.',
+  },
   noRoutes: 'Поки що немає маршрутів. Додайте файли .gpx до src/routes/.',
   distance: 'Дистанція',
   time: 'Час',
   pace: 'Темп',
+  speed: 'Сер. швидкість',
   avgHr: 'Сер. пульс',
   maxHr: 'Макс. пульс',
   avgCadence: 'Сер. каденс',
@@ -162,7 +201,9 @@ const uk: Messages = {
     km: 'км',
     bpm: 'уд/хв',
     spm: 'кр/хв',
+    rpm: 'об/хв',
     minPerKm: '/км',
+    kmh: 'км/год',
   },
   errors: {
     tcxInvalidXml: 'Не вдалося прочитати файл як TCX (некоректний XML).',

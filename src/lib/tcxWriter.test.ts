@@ -30,3 +30,31 @@ describe('serializeTcx', () => {
     expect(() => serializeTcx({ samples: [] })).toThrow();
   });
 });
+
+describe('serializeTcx — activity type', () => {
+  const bike: MergedActivity = { ...merged, sport: 'Biking' };
+
+  it('writes the original sport back out unchanged', () => {
+    expect(serializeTcx(bike)).toContain('<Activity Sport="Biking">');
+    expect(serializeTcx({ ...merged, sport: 'Other' })).toContain('<Activity Sport="Other">');
+  });
+
+  it('does not guess Running when the source had no sport', () => {
+    expect(serializeTcx({ samples: merged.samples })).toContain('<Activity Sport="Other">');
+  });
+
+  it('writes bike cadence as a Trackpoint Cadence element, not RunCadence', () => {
+    const xml = serializeTcx(bike);
+    expect(xml).toContain('<Cadence>85</Cadence>');
+    expect(xml).not.toContain('RunCadence');
+  });
+
+  it('writes running cadence as the RunCadence extension', () => {
+    const xml = serializeTcx(merged);
+    expect(xml).toContain('<ns3:RunCadence>85</ns3:RunCadence>');
+  });
+
+  it('round-trips bike cadence back through parseTcx', () => {
+    expect(parseTcx(serializeTcx(bike)).samples[0].cadence).toBe(85);
+  });
+});

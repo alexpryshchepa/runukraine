@@ -26,5 +26,9 @@ export function computeStats(samples: GarminSample[]): ActivityStats {
     avgCadence: avgCadVal === undefined ? undefined : Math.round(avgCadVal),
     avgPaceSecondsPerKm:
       distanceMeters > 0 ? elapsedSeconds / (distanceMeters / 1000) : undefined,
+    avgSpeedKmh:
+      distanceMeters > 0 && elapsedSeconds > 0
+        ? distanceMeters / 1000 / (elapsedSeconds / 3600)
+        : undefined,
   };
 }

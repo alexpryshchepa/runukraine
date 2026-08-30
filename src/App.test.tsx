@@ -174,3 +174,41 @@ describe('step 3 custom .gpx route toggle', () => {
     expect(firstAgain).toHaveAttribute('aria-pressed', 'true');
   });
 });
+
+const bikeTcx = sampleTcx
+  .replace('Sport="Running"', 'Sport="Biking"')
+  .replace('run.tcx', 'ride.tcx');
+
+async function loadInEnglish(xml: string, filename: string) {
+  renderApp();
+  fireEvent.click(screen.getByRole('button', { name: /EN/i }));
+  const fileInput = screen.getByLabelText('Choose a .tcx file') as HTMLInputElement;
+  fireEvent.change(fileInput, {
+    target: { files: [new File([xml], filename, { type: 'application/xml' })] },
+  });
+  await screen.findByLabelText('Start time');
+}
+
+describe('App activity type', () => {
+  it('shows neutral copy before any file is loaded', () => {
+    renderApp();
+    fireEvent.click(screen.getByRole('button', { name: /EN/i }));
+    expect(screen.getByText("Rescue the activity GPS couldn't record.")).toBeInTheDocument();
+  });
+
+  it('switches the hero copy to running once a run is loaded', async () => {
+    await loadInEnglish(sampleTcx, 'run.tcx');
+    expect(screen.getByText("Rescue the run GPS couldn't record.")).toBeInTheDocument();
+  });
+
+  it('switches the hero copy to riding once a ride is loaded', async () => {
+    await loadInEnglish(bikeTcx, 'ride.tcx');
+    expect(screen.getByText("Rescue the ride GPS couldn't record.")).toBeInTheDocument();
+  });
+
+  it('returns to neutral copy after the activity is replaced', async () => {
+    await loadInEnglish(bikeTcx, 'ride.tcx');
+    fireEvent.click(screen.getByRole('button', { name: 'Replace' }));
+    expect(screen.getByText("Rescue the activity GPS couldn't record.")).toBeInTheDocument();
+  });
+});

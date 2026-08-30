@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mergeActivityWithRoute } from './merge';
 import { cumulativeDistances } from './geo';
-import type { GarminActivity, Route, RoutePoint } from '../types';
+import type { GarminActivity, GarminSample, Route, RoutePoint } from '../types';
 
 function straightRoute(): Route {
   const points: RoutePoint[] = [
@@ -62,8 +62,6 @@ describe('mergeActivityWithRoute', () => {
   });
 });
 
-const M_PER_DEG_LON = 111320;
-
 function eastRoute(lonEnd: number): Route {
   const points: RoutePoint[] = [
     { lat: 0, lon: 0 },
@@ -77,38 +75,44 @@ function gs(tSec: number, distance: number, lat?: number, lon?: number) {
   return { time: new Date(2026, 0, 1, 0, 0, tSec), distance, lat, lon };
 }
 
-describe('mergeActivityWithRoute — accuracy', () => {
-  it('reports a fallback merge when there is no usable GPS', () => {
+describe('mergeActivityWithRoute — route endpoints', () => {
+  /**
+   * The watch is jammed for the first 1 km and the last 1 km, so it under-counts
+   * distance there and has no GPS fix. In between it tracks the route cleanly.
+   * The merged track must still begin at the route's first point and end at its
+   * last, because the route is used exactly as uploaded.
+   */
+  function jammedAtBothEnds(route: Route): GarminActivity {
+    const arcToLon = (arc: number) => (arc / route.length) * 0.09;
+    const samples: GarminSample[] = [];
+    const at = (d: number, arc?: number) =>
+      samples.push(gs(samples.length * 30, d, arc === undefined ? undefined : 0,
+        arc === undefined ? undefined : arcToLon(arc)));
+
+    at(0); // true arc 0, no fix
+    at(150); // true arc ~500, no fix
+    for (let i = 0; i <= 8; i++) at(300 + i * 1000, 1000 + i * 1000); // clean, arcs 1000..9000
+    at(8600); // true arc = route.length, no fix
+
+    return { sport: 'Running', samples };
+  }
+
+  it('starts exactly on the route start and ends exactly on the route finish', () => {
     const route = eastRoute(0.09);
-    const merged = mergeActivityWithRoute(
-      { samples: [gs(0, 0), gs(30, 13500), gs(60, 27000)] },
-      route,
-    );
-    expect(merged.report?.fallbackUsed).toBe(true);
-    expect(merged.samples[merged.samples.length - 1].distance).toBeCloseTo(route.length, 0);
+    const merged = mergeActivityWithRoute(jammedAtBothEnds(route), route);
+    const first = merged.samples[0];
+    const last = merged.samples[merged.samples.length - 1];
+
+    expect(first.lat).toBe(route.points[0].lat);
+    expect(first.lon).toBe(route.points[0].lon);
+    expect(last.lat).toBe(route.points[route.points.length - 1].lat);
+    expect(last.lon).toBe(route.points[route.points.length - 1].lon);
   });
 
-  it('keeps a clean section on its true arc despite a localized jam', () => {
+  it('spans the full route distance regardless of what the watch recorded', () => {
     const route = eastRoute(0.09);
-    const samples = [];
-    for (let d = 0; d <= 5000; d += 1000) samples.push(gs(samples.length * 30, d, 0, d / M_PER_DEG_LON));
-    samples.push(gs(samples.length * 30, 15000)); // jammed, no GPS
-    [25000, 26000, 27000].forEach((d, i) =>
-      samples.push(gs(samples.length * 30, d, 0, (8000 + i * 1000) / M_PER_DEG_LON)),
-    );
-    const merged = mergeActivityWithRoute({ samples, sport: 'Running' }, route);
-    expect(merged.report?.fallbackUsed).toBe(false);
-    // sample recorded at 5000 m lands near arc 5000, not ~1855 (27000→10018 global scale)
-    const fifth = merged.samples[5];
-    expect(fifth.distance).toBeGreaterThan(4000);
-  });
-
-  it('stops where the runner stopped on a partial run', () => {
-    const route = eastRoute(0.09);
-    const samples = [];
-    for (let d = 0; d <= 7000; d += 1000) samples.push(gs(samples.length * 30, d, 0, d / M_PER_DEG_LON));
-    const merged = mergeActivityWithRoute({ samples, sport: 'Running' }, route);
-    expect(merged.report?.partial).toBe(true);
-    expect(merged.samples[merged.samples.length - 1].distance).toBeLessThan(8000);
+    const merged = mergeActivityWithRoute(jammedAtBothEnds(route), route);
+    expect(merged.samples[0].distance).toBe(0);
+    expect(merged.samples[merged.samples.length - 1].distance).toBe(route.length);
   });
 });

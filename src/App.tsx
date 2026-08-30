@@ -3,6 +3,7 @@ import { parseTcx } from './lib/tcx';
 import { buildRoute, filenameToName, loadBundledRoutes } from './lib/routes';
 import { mergeActivityWithRoute } from './lib/merge';
 import { computeStats } from './lib/stats';
+import { classifySport } from './lib/sport';
 import { serializeTcx } from './lib/tcxWriter';
 import { downloadText } from './lib/download';
 import { mergeReportWarnings } from './lib/mergeWarnings';
@@ -104,6 +105,8 @@ export default function App() {
     }
   }, [editedActivity, route, t]);
 
+  // No file yet means no known sport, so the copy stays neutral until one loads.
+  const kind = classifySport(activity?.sport);
   const stats = merged ? computeStats(merged.samples) : null;
   const startStatus = validateStartTime(startInput, new Date());
   const startInvalid = startStatus !== null;
@@ -125,15 +128,15 @@ export default function App() {
           </div>
           <div className="brand-text">
             <span className="brand-name">Replot</span>
-            <span className="brand-tagline">{t('tagline')}</span>
+            <span className="brand-tagline">{t(`tagline.${kind}`)}</span>
           </div>
         </div>
         <LanguageToggle />
       </header>
 
       <div className="hero">
-        <h1>{t('heroTitle')}</h1>
-        <p className="lede">{t('lede')}</p>
+        <h1>{t(`heroTitle.${kind}`)}</h1>
+        <p className="lede">{t(`lede.${kind}`)}</p>
       </div>
 
       {(error || mergeError) && (
@@ -289,7 +292,7 @@ export default function App() {
               <h2>{t('step4')}</h2>
             </div>
             {merged.report &&
-              mergeReportWarnings(merged.report).map((w) => (
+              mergeReportWarnings(merged.report, kind).map((w) => (
                 <p key={w.key} className="merge-note" role="note">
                   {t(w.key, w.params)}
                 </p>
@@ -300,7 +303,7 @@ export default function App() {
               routeName={route?.name}
               distanceKm={stats.distanceMeters / 1000}
             />
-            <StatsSummary stats={stats} />
+            <StatsSummary stats={stats} kind={kind} />
             <button type="button" className="btn-download" onClick={handleDownload}>
               <svg
                 width="19"
