@@ -1,15 +1,18 @@
 import type { GarminSample } from '../types';
 import { RESET_RATIO, maxSpeedForSport } from './mergeConfig';
 
-export interface CleanedStream {
-  samples: GarminSample[];
-  flagged: boolean[];
-}
-
-export function cleanDistanceStream(samples: GarminSample[], sport?: string): CleanedStream {
+/**
+ * Turns the watch's raw cumulative distance into one monotonic, plausible
+ * stream: lap-counter resets are stitched together, backward jitter is
+ * clamped, and steps implying an impossible speed are capped.
+ *
+ * Capping matters because the merge scales this stream linearly onto the
+ * route — a single jam-induced distance spike would otherwise compress the
+ * entire track.
+ */
+export function cleanDistanceStream(samples: GarminSample[], sport?: string): GarminSample[] {
   const maxSpeed = maxSpeedForSport(sport);
   const out: GarminSample[] = [];
-  const flagged: boolean[] = [];
   let offset = 0;
   let prevRaw = Number.NEGATIVE_INFINITY;
   let lastCum = Number.NEGATIVE_INFINITY;
@@ -25,11 +28,14 @@ export function cleanDistanceStream(samples: GarminSample[], sport?: string): Cl
     if (out.length > 0) {
       const prev = out[out.length - 1];
       const dt = (original.time.getTime() - prev.time.getTime()) / 1000;
-      const dd = cum - prev.distance;
-      const v = dt > 0 ? dd / dt : Number.POSITIVE_INFINITY;
-      flagged.push(v > maxSpeed);
-    } else {
-      flagged.push(false);
+      const step = cum - prev.distance;
+      const maxStep = dt > 0 ? maxSpeed * dt : 0;
+      if (step > maxStep) {
+        // Absorb the excess into `offset` so later samples stay consistent
+        // with the capped value instead of snapping back to the raw stream.
+        offset -= step - maxStep;
+        cum = prev.distance + maxStep;
+      }
     }
 
     out.push({ ...original, distance: cum });
@@ -37,5 +43,5 @@ export function cleanDistanceStream(samples: GarminSample[], sport?: string): Cl
     lastCum = cum;
   }
 
-  return { samples: out, flagged };
+  return out;
 }

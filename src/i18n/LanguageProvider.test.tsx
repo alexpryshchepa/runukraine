@@ -6,7 +6,7 @@ import { LanguageToggle } from './LanguageToggle';
 
 function Probe() {
   const t = useT();
-  return <p>{t('heroTitle')}</p>;
+  return <p>{t('heroTitle.run')}</p>;
 }
 
 beforeEach(() => {

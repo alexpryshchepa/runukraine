@@ -35,10 +35,6 @@ export interface MergeReport {
   recordedDistance: number;
   routeLength: number;
   ratio: number;
-  anchorCount: number;
-  fallbackUsed: boolean;
-  partial: boolean;
-  coveredFraction: number;
 }
 
 export interface MergedActivity {
@@ -54,4 +50,5 @@ export interface ActivityStats {
   maxHr?: number;
   avgCadence?: number;
   avgPaceSecondsPerKm?: number;
+  avgSpeedKmh?: number;
 }

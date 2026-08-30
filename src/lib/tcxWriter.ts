@@ -1,11 +1,12 @@
 import type { MergedActivity, MergedSample } from '../types';
+import { classifySport } from './sport';
 import { AppError } from './errors';
 
 function fmt(n: number, digits = 6): string {
   return n.toFixed(digits);
 }
 
-function trackpointXml(s: MergedSample): string {
+function trackpointXml(s: MergedSample, isRide: boolean): string {
   const parts: string[] = [
     '        <Trackpoint>',
     `          <Time>${s.time.toISOString()}</Time>`,
@@ -22,8 +23,14 @@ function trackpointXml(s: MergedSample): string {
     parts.push(`          <HeartRateBpm><Value>${Math.round(s.hr)}</Value></HeartRateBpm>`);
   }
   if (s.cadence !== undefined) {
+    const cadence = Math.round(s.cadence);
+    // TCX keeps bike cadence (rpm) in Trackpoint/Cadence and run cadence (spm)
+    // in the ActivityExtension. Writing a ride's cadence as RunCadence makes
+    // Strava drop it, so the element has to follow the activity type.
     parts.push(
-      `          <Extensions><ns3:TPX><ns3:RunCadence>${Math.round(s.cadence)}</ns3:RunCadence></ns3:TPX></Extensions>`,
+      isRide
+        ? `          <Cadence>${cadence}</Cadence>`
+        : `          <Extensions><ns3:TPX><ns3:RunCadence>${cadence}</ns3:RunCadence></ns3:TPX></Extensions>`,
     );
   }
   parts.push('        </Trackpoint>');
@@ -33,12 +40,16 @@ function trackpointXml(s: MergedSample): string {
 export function serializeTcx(activity: MergedActivity): string {
   const { samples } = activity;
   if (samples.length === 0) throw new AppError('exportEmpty');
-  const sport = activity.sport ?? 'Running';
+  // The user's own activity type is written back verbatim; when the source
+  // carried none there is nothing to preserve, so it stays deliberately
+  // unclaimed rather than being guessed as a run.
+  const sport = activity.sport ?? 'Other';
+  const isRide = classifySport(sport) === 'ride';
   const startTime = samples[0].time.toISOString();
   const totalSeconds =
     (samples[samples.length - 1].time.getTime() - samples[0].time.getTime()) / 1000;
   const totalDistance = samples[samples.length - 1].distance;
-  const trackpoints = samples.map(trackpointXml).join('\n');
+  const trackpoints = samples.map((s) => trackpointXml(s, isRide)).join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <TrainingCenterDatabase

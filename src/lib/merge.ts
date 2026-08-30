@@ -1,10 +1,8 @@
 import type { GarminActivity, MergedActivity, MergeReport, Route } from '../types';
 import { interpolateAlongPath } from './geo';
 import { cleanDistanceStream } from './clean';
-import { buildAnchors } from './anchors';
 import { buildDistanceMap } from './distanceMap';
 import { resampleAtVertices, type ArcSample } from './resample';
-import { PARTIAL_THRESHOLD } from './mergeConfig';
 import { AppError } from './errors';
 
 export function mergeActivityWithRoute(
@@ -18,7 +16,7 @@ export function mergeActivityWithRoute(
     throw new AppError('mergeRouteTooFewPoints');
   }
 
-  const { samples: cleaned, flagged } = cleanDistanceStream(activity.samples, activity.sport);
+  const cleaned = cleanDistanceStream(activity.samples, activity.sport);
   const first = cleaned[0];
   const last = cleaned[cleaned.length - 1];
   const recordedTotal = last.distance - first.distance;
@@ -26,12 +24,11 @@ export function mergeActivityWithRoute(
     throw new AppError('mergeNoDistance');
   }
 
-  const anchors = buildAnchors(cleaned, route);
-  const map = buildDistanceMap(cleaned, anchors, flagged, route);
+  const map = buildDistanceMap(cleaned, route);
 
   let prevArc = 0;
   const withArc: ArcSample[] = cleaned.map((s) => {
-    let arc = map.mapDistance(s.distance, s.time.getTime());
+    let arc = map.mapDistance(s.distance);
     if (arc < prevArc) arc = prevArc; // belt-and-suspenders monotonicity
     prevArc = arc;
     const p = interpolateAlongPath(route.points, route.cumulative, arc);
@@ -40,15 +37,10 @@ export function mergeActivityWithRoute(
 
   const samples = resampleAtVertices(withArc, route);
 
-  const coveredFraction = route.length > 0 ? map.finalArc / route.length : 0;
   const report: MergeReport = {
     recordedDistance: recordedTotal,
     routeLength: route.length,
     ratio: route.length > 0 ? recordedTotal / route.length : 0,
-    anchorCount: anchors.length,
-    fallbackUsed: map.fallbackUsed,
-    partial: coveredFraction < PARTIAL_THRESHOLD,
-    coveredFraction,
   };
 
   return { samples, sport: activity.sport, report };

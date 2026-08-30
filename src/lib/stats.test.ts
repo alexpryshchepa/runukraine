@@ -34,3 +34,13 @@ describe('computeStats', () => {
     expect(s.avgPaceSecondsPerKm).toBeUndefined();
   });
 });
+
+describe('computeStats — speed', () => {
+  it('reports average speed in km/h alongside pace', () => {
+    const s = computeStats(samples); // 200 m in 60 s
+    expect(s.avgSpeedKmh).toBeCloseTo(12, 6);
+  });
+  it('omits speed when nothing was covered', () => {
+    expect(computeStats([]).avgSpeedKmh).toBeUndefined();
+  });
+});

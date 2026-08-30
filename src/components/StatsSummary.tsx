@@ -1,4 +1,5 @@
 import type { ActivityStats } from '../types';
+import type { SportKind } from '../lib/sport';
 import { useT } from '../i18n/languageContext';
 
 function formatDuration(seconds: number): string {
@@ -17,56 +18,55 @@ function formatPace(secondsPerKm: number): string {
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
-export function StatsSummary({ stats }: { stats: ActivityStats }) {
+function Tile({ label, value, unit }: { label: string; value: string; unit?: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>
+        {value}
+        {unit ? <span className="unit">{unit}</span> : null}
+      </dd>
+    </div>
+  );
+}
+
+/**
+ * Riders read speed and rpm; runners read pace and spm. Anything else falls
+ * back to pace, which suits the walk/hike/ski activities TCX lumps into "Other".
+ */
+export function StatsSummary({ stats, kind }: { stats: ActivityStats; kind: SportKind }) {
   const t = useT();
+  const isRide = kind === 'ride';
+
   return (
     <dl className="stats">
-      <div>
-        <dt>{t('distance')}</dt>
-        <dd>
-          {(stats.distanceMeters / 1000).toFixed(2)}
-          <span className="unit">{t('units.km')}</span>
-        </dd>
-      </div>
-      <div>
-        <dt>{t('time')}</dt>
-        <dd>{formatDuration(stats.elapsedSeconds)}</dd>
-      </div>
-      {stats.avgPaceSecondsPerKm !== undefined && (
-        <div>
-          <dt>{t('pace')}</dt>
-          <dd>
-            {formatPace(stats.avgPaceSecondsPerKm)}
-            <span className="unit">{t('units.minPerKm')}</span>
-          </dd>
-        </div>
-      )}
+      <Tile label={t('distance')} value={(stats.distanceMeters / 1000).toFixed(2)} unit={t('units.km')} />
+      <Tile label={t('time')} value={formatDuration(stats.elapsedSeconds)} />
+
+      {isRide
+        ? stats.avgSpeedKmh !== undefined && (
+            <Tile label={t('speed')} value={stats.avgSpeedKmh.toFixed(1)} unit={t('units.kmh')} />
+          )
+        : stats.avgPaceSecondsPerKm !== undefined && (
+            <Tile
+              label={t('pace')}
+              value={formatPace(stats.avgPaceSecondsPerKm)}
+              unit={t('units.minPerKm')}
+            />
+          )}
+
       {stats.avgHr !== undefined && (
-        <div>
-          <dt>{t('avgHr')}</dt>
-          <dd>
-            {stats.avgHr}
-            <span className="unit">{t('units.bpm')}</span>
-          </dd>
-        </div>
+        <Tile label={t('avgHr')} value={String(stats.avgHr)} unit={t('units.bpm')} />
       )}
       {stats.maxHr !== undefined && (
-        <div>
-          <dt>{t('maxHr')}</dt>
-          <dd>
-            {stats.maxHr}
-            <span className="unit">{t('units.bpm')}</span>
-          </dd>
-        </div>
+        <Tile label={t('maxHr')} value={String(stats.maxHr)} unit={t('units.bpm')} />
       )}
       {stats.avgCadence !== undefined && (
-        <div>
-          <dt>{t('avgCadence')}</dt>
-          <dd>
-            {stats.avgCadence}
-            <span className="unit">{t('units.spm')}</span>
-          </dd>
-        </div>
+        <Tile
+          label={t('avgCadence')}
+          value={String(stats.avgCadence)}
+          unit={isRide ? t('units.rpm') : t('units.spm')}
+        />
       )}
     </dl>
   );
