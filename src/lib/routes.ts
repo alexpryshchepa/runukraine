@@ -24,8 +24,16 @@ const modules = import.meta.glob('../routes/*.gpx', {
   eager: true,
 }) as Record<string, string>;
 
+// Routes named here are listed first, in this order; the rest follow alphabetically.
+const pinnedNames = ['100km Kyivska Sotka 2026', '50km Kyivska Sotka 2026'];
+
+function pinnedRank(name: string): number {
+  const i = pinnedNames.indexOf(name);
+  return i === -1 ? pinnedNames.length : i;
+}
+
 export function loadBundledRoutes(): Route[] {
   return Object.entries(modules)
     .map(([path, xml]) => buildRoute(filenameToName(path), xml))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => pinnedRank(a.name) - pinnedRank(b.name) || a.name.localeCompare(b.name));
 }
